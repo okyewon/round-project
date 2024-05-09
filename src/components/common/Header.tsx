@@ -3,8 +3,8 @@ import Nav from "./Nav";
 
 const Header = () => {
   return (
-    <header>
-      <h1>
+    <header className="flex justify-between">
+      <h1 className="font-bold">
         <Link to={"/"}>동글동글</Link>
       </h1>
       <Nav />
