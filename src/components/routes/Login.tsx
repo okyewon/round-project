@@ -1,10 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import styled from "styled-components";
 import { FirebaseError } from "firebase/app";
 import { errorMessage } from "../constants/constants";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
+import { Form, Link } from "react-router-dom";
+import {
+  Button,
+  Error,
+  Input,
+  Switcher,
+  Wrapper,
+} from "../common/Auth-components";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -35,10 +42,7 @@ const Login = () => {
       navigate("/");
     } catch (e) {
       if (e instanceof FirebaseError) {
-        if (
-          e.code === "auth/email-already-in-use" ||
-          e.code === "auth/weak-password"
-        ) {
+        if (e.code === "auth/invalid-credential") {
           setError(errorMessage[e.code]);
         } else {
           setError(e.code);
@@ -101,50 +105,12 @@ const Login = () => {
         </Button>
       </Form>
       {error !== "" ? <Error>{error}</Error> : null}
+      <Switcher>
+        아직 회원이 아니신가요?{" "}
+        <Link to="/create-account">회원가입 &rarr;</Link>
+      </Switcher>
     </Wrapper>
   );
 };
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 550px;
-  margin: 100px auto 0;
-  padding: 3rem 0;
-  border-radius: 20px;
-  background-color: #eeeeee;
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 90%;
-  margin-top: 50px;
-`;
-
-const Input = styled.input`
-  background-color: transparent !important;
-  &:-internal-autofill-selected {
-    background-color: transparent !important;
-  }
-`;
-
-const Button = styled.button`
-  background-color: #2f2f2f;
-  color: #fff;
-  cursor: pointer;
-  &:hover {
-    opacity: 0.8;
-  }
-`;
-
-const Error = styled.span`
-  margin: 10px;
-  font-weight: 600;
-  color: tomato;
-`;
 
 export default Login;

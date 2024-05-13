@@ -2,9 +2,16 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useState } from "react";
 import { auth } from "../../firebase";
 import { useNavigate } from "react-router";
-import styled from "styled-components";
 import { FirebaseError } from "firebase/app";
 import { errorMessage } from "../constants/constants";
+import { Form, Link } from "react-router-dom";
+import {
+  Button,
+  Error,
+  Input,
+  Switcher,
+  Wrapper,
+} from "../common/Auth-components";
 
 const CreateAccount = () => {
   const navigate = useNavigate();
@@ -132,50 +139,11 @@ const CreateAccount = () => {
         </Button>
       </Form>
       {error !== "" ? <Error>{error}</Error> : null}
+      <Switcher>
+        이미 가입하셨다면? <Link to="/login">로그인 &rarr;</Link>
+      </Switcher>
     </Wrapper>
   );
 };
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 550px;
-  margin: 100px auto 0;
-  padding: 3rem 0;
-  border-radius: 20px;
-  background-color: #eeeeee;
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 90%;
-  margin-top: 50px;
-`;
-
-const Input = styled.input`
-  background-color: transparent !important;
-  &:-internal-autofill-selected {
-    background-color: transparent !important;
-  }
-`;
-
-const Button = styled.button`
-  background-color: #2f2f2f;
-  color: #fff;
-  cursor: pointer;
-  &:hover {
-    opacity: 0.8;
-  }
-`;
-
-const Error = styled.span`
-  margin: 10px;
-  font-weight: 600;
-  color: tomato;
-`;
 
 export default CreateAccount;
