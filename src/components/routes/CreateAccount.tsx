@@ -173,6 +173,7 @@ const Button = styled.button`
 `;
 
 const Error = styled.span`
+  margin: 10px;
   font-weight: 600;
   color: tomato;
 `;

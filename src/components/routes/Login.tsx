@@ -1,15 +1,14 @@
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useState } from "react";
-import { auth } from "../../firebase";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
 import { FirebaseError } from "firebase/app";
 import { errorMessage } from "../constants/constants";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase";
 
 const Login = () => {
   const navigate = useNavigate();
   const [isLoading, setLoading] = useState(false);
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -18,9 +17,7 @@ const Login = () => {
     const {
       target: { name, value },
     } = e;
-    if (name === "name") {
-      setName(value);
-    } else if (name === "email") {
+    if (name === "email") {
       setEmail(value);
     } else if (name === "password") {
       setPassword(value);
@@ -31,19 +28,10 @@ const Login = () => {
     e.preventDefault();
     setError("");
 
-    if (isLoading || name === "" || email === "" || password === "") return;
+    if (isLoading || email === "" || password === "") return;
     try {
       setLoading(true);
-      const credentials = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      );
-
-      await updateProfile(credentials.user, {
-        displayName: name,
-      });
-
+      await signInWithEmailAndPassword(auth, email, password);
       navigate("/");
     } catch (e) {
       if (e instanceof FirebaseError) {
@@ -109,7 +97,7 @@ const Login = () => {
           />
         </label>
         <Button type="submit" className="btn text-2xl font-bold">
-          {isLoading ? "Loading..." : "Join in !"}
+          {isLoading ? "Loading..." : "Sign in !"}
         </Button>
       </Form>
       {error !== "" ? <Error>{error}</Error> : null}
@@ -154,6 +142,7 @@ const Button = styled.button`
 `;
 
 const Error = styled.span`
+  margin: 10px;
   font-weight: 600;
   color: tomato;
 `;
