@@ -4,10 +4,11 @@ import { auth } from "../../firebase";
 import { useNavigate } from "react-router";
 import { FirebaseError } from "firebase/app";
 import { errorMessage } from "../constants/constants";
-import { Form, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   Button,
   Error,
+  Form,
   Input,
   Switcher,
   Wrapper,

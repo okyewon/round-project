@@ -6,11 +6,17 @@ import BoardWrite from "./components/routes/BoardWrite";
 import Mypage from "./components/routes/Mypage";
 import Login from "./components/routes/Login";
 import CreateAccount from "./components/routes/CreateAccount";
+import ProtectedRoute from "./components/common/ProtectedRoute";
+import ResetPassword from "./components/routes/ResetPassword";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Index />,
+    element: (
+      <ProtectedRoute>
+        <Index />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: "map",
@@ -37,6 +43,10 @@ const router = createBrowserRouter([
   {
     path: "/create-account",
     element: <CreateAccount />,
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPassword />,
   },
 ]);
 

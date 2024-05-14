@@ -4,10 +4,11 @@ import { FirebaseError } from "firebase/app";
 import { errorMessage } from "../constants/constants";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
-import { Form, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   Button,
   Error,
+  Form,
   Input,
   Switcher,
   Wrapper,
@@ -101,13 +102,17 @@ const Login = () => {
           />
         </label>
         <Button type="submit" className="btn text-2xl font-bold">
-          {isLoading ? "Loading..." : "Sign in !"}
+          {isLoading ? "Loading..." : "Sign up !"}
         </Button>
       </Form>
       {error !== "" ? <Error>{error}</Error> : null}
       <Switcher>
         아직 회원이 아니신가요?{" "}
         <Link to="/create-account">회원가입 &rarr;</Link>
+      </Switcher>
+      <Switcher>
+        비밀번호를 잊으셨나요?{" "}
+        <Link to="/reset-password">비밀번호 재설정 &rarr;</Link>
       </Switcher>
     </Wrapper>
   );
