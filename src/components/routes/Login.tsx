@@ -13,6 +13,7 @@ import {
   Switcher,
   Wrapper,
 } from "../common/Auth-components";
+import GoogleBtn from "../common/SocialBtns";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -106,6 +107,7 @@ const Login = () => {
         </Button>
       </Form>
       {error !== "" ? <Error>{error}</Error> : null}
+      <GoogleBtn />
       <Switcher>
         아직 회원이 아니신가요?{" "}
         <Link to="/create-account">회원가입 &rarr;</Link>
