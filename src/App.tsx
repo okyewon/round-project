@@ -8,12 +8,24 @@ import { auth } from "./firebase";
 
 const GlobalStyles = createGlobalStyle`
   ${reset};
+  :root {
+    --primary-color: #00D6F3
+  }
   * {
     box-sizing: border-box;
   }
   body {
     font-family: "Noto Sans KR", sans-serif;
     line-height: 1;
+  }
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+  button {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
   }
 `;
 

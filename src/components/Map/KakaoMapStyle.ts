@@ -9,7 +9,6 @@ export const Wrapper = styled.div`
   a:hover,
   a:active {
     color: #000;
-    text-decoration: none;
   }
 `;
 
@@ -17,11 +16,11 @@ export const SearchWrap = styled.div`
   z-index: 1;
   overflow-y: auto;
   position: absolute;
-  top: 130px;
+  top: 80px;
   left: 10px;
   bottom: 0;
   width: 330px;
-  margin: 10px 0 30px;
+  margin: 0 0 30px 0;
   padding: 5px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.5);

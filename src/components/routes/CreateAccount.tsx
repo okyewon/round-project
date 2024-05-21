@@ -53,7 +53,7 @@ const CreateAccount = () => {
         displayName: name,
       });
 
-      navigate("/");
+      navigate("/", { replace: true });
     } catch (e) {
       if (e instanceof FirebaseError) {
         if (
