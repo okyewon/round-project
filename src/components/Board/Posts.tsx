@@ -6,7 +6,7 @@ import {
   query,
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { auth, db } from "../../firebase";
+import { db } from "../../firebase";
 import { Unsubscribe } from "firebase/auth";
 import styled from "styled-components";
 import Post from "./Post";
