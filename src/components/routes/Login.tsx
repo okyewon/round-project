@@ -42,7 +42,7 @@ const Login = () => {
     try {
       setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/", { replace: true });
+      navigate("/home", { replace: true });
     } catch (e) {
       if (e instanceof FirebaseError) {
         if (e.code === "auth/invalid-credential") {

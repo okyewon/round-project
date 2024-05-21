@@ -8,6 +8,7 @@ import CreateAccount from "./components/routes/CreateAccount";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import ResetPassword from "./components/routes/ResetPassword";
 import PostWrite from "./components/routes/PostWrite";
+import Home from "./components/routes/Home";
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
+      {
+        path: "home",
+        element: <Home />,
+      },
       {
         path: "map",
         element: <Map />,

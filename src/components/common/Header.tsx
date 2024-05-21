@@ -8,7 +8,7 @@ const Header = () => {
   return (
     <HeaderBar>
       <Logo>
-        <Link to={"/"}>
+        <Link to={"/home"}>
           <MdOutlinePets />
           동글동글
         </Link>

@@ -73,7 +73,7 @@ const CreateAccount = () => {
         createdAt: new Date(),
       });
 
-      navigate("/", { replace: true });
+      navigate("/home", { replace: true });
     } catch (e) {
       if (e instanceof FirebaseError) {
         if (

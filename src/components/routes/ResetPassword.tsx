@@ -21,7 +21,7 @@ const Login = () => {
       setLoading(true);
       await sendPasswordResetEmail(auth, email);
       alert("이메일이 전송되었습니다. 메일함을 확인해주세요!");
-      navigate("/");
+      navigate("/login");
     } catch (e) {
       alert(e);
     } finally {
