@@ -1,6 +1,6 @@
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useState } from "react";
-import { auth } from "../../firebase";
+import { auth, db } from "../../firebase";
 import { useNavigate } from "react-router";
 import { FirebaseError } from "firebase/app";
 import { errorMessage } from "../constants/constants";
@@ -10,10 +10,13 @@ import {
   Error,
   Form,
   Input,
+  Or,
   Switcher,
+  Types,
   Wrapper,
 } from "../common/Auth-components";
 import GoogleBtn from "../common/SocialBtns";
+import { doc, setDoc } from "firebase/firestore";
 
 const CreateAccount = () => {
   const navigate = useNavigate();
@@ -21,6 +24,7 @@ const CreateAccount = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [type, setType] = useState("");
   const [error, setError] = useState("");
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,6 +37,8 @@ const CreateAccount = () => {
       setEmail(value);
     } else if (name === "password") {
       setPassword(value);
+    } else if (name === "type") {
+      setType(value);
     }
   };
 
@@ -40,7 +46,14 @@ const CreateAccount = () => {
     e.preventDefault();
     setError("");
 
-    if (isLoading || name === "" || email === "" || password === "") return;
+    if (
+      isLoading ||
+      name === "" ||
+      email === "" ||
+      password === "" ||
+      type === ""
+    )
+      return;
     try {
       setLoading(true);
       const credentials = await createUserWithEmailAndPassword(
@@ -51,6 +64,13 @@ const CreateAccount = () => {
 
       await updateProfile(credentials.user, {
         displayName: name,
+      });
+
+      await setDoc(doc(db, "users", credentials.user.uid), {
+        email: credentials.user.email,
+        displayName: name,
+        userType: type,
+        createdAt: new Date(),
       });
 
       navigate("/", { replace: true });
@@ -74,6 +94,17 @@ const CreateAccount = () => {
     <Wrapper>
       <h2 className="text-4xl font-bold">회원가입</h2>
       <Form onSubmit={onSubmit}>
+        <Types>
+          <input onChange={onChange} type="radio" name="type" value="shelter" />
+          보호소
+          <input
+            onChange={onChange}
+            type="radio"
+            name="type"
+            value="personal"
+          />
+          개인
+        </Types>
         <label className="input input-bordered flex items-center gap-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -141,6 +172,7 @@ const CreateAccount = () => {
         </Button>
       </Form>
       {error !== "" ? <Error>{error}</Error> : null}
+      <Or>or</Or>
       <GoogleBtn />
       <Switcher>
         이미 가입하셨다면? <Link to="/login">로그인 &rarr;</Link>

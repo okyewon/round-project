@@ -20,7 +20,6 @@ const category = [
 const Nav = () => {
   const location = useLocation();
   const [path, setPath] = useState(location.pathname);
-  console.log(location);
 
   useEffect(() => {
     setPath(location.pathname);

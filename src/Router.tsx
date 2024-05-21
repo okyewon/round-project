@@ -2,12 +2,12 @@ import { createBrowserRouter } from "react-router-dom";
 import Index from "./components/routes/Index";
 import Map from "./components/routes/Map";
 import Board from "./components/routes/Board";
-import BoardWrite from "./components/routes/BoardWrite";
 import Mypage from "./components/routes/Mypage";
 import Login from "./components/routes/Login";
 import CreateAccount from "./components/routes/CreateAccount";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import ResetPassword from "./components/routes/ResetPassword";
+import PostWrite from "./components/routes/PostWrite";
 
 const router = createBrowserRouter([
   {
@@ -27,8 +27,8 @@ const router = createBrowserRouter([
         element: <Board />,
       },
       {
-        path: "boardwrite",
-        element: <BoardWrite />,
+        path: "post-write",
+        element: <PostWrite />,
       },
       {
         path: "mypage",

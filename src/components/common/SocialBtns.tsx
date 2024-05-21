@@ -2,16 +2,37 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import styled from "styled-components";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FirebaseError } from "firebase/app";
-import { auth } from "../../firebase";
+import { auth, db } from "../../firebase";
+import { doc, setDoc } from "firebase/firestore";
+import { useState } from "react";
+import { Types } from "./Auth-components";
 
 export default function GoogleBtn() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [type, setType] = useState("");
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const {
+      target: { name, value },
+    } = e;
+    if (name === "type") {
+      setType(value);
+    }
+  };
+
   const onClick = async () => {
     try {
       const provider = new GoogleAuthProvider();
       // 구글 인증 수행
-      await signInWithPopup(auth, provider);
+      const credentials = await signInWithPopup(auth, provider);
+
+      await setDoc(doc(db, "users", credentials.user.uid), {
+        email: credentials.user.email,
+        displayName: name,
+        userType: type,
+        createdAt: new Date(),
+      });
 
       navigate("/");
     } catch (e) {
@@ -24,10 +45,18 @@ export default function GoogleBtn() {
   };
 
   return (
-    <Button onClick={onClick} className="btn">
-      <Logo src="/google-logo.svg" />
-      Google 계정으로 {location.pathname === "/login" ? "로그인" : "회원가입"}
-    </Button>
+    <>
+      <Types>
+        <input onChange={onChange} type="radio" name="type" value="shelter" />
+        보호소
+        <input onChange={onChange} type="radio" name="type" value="personal" />
+        개인
+      </Types>
+      <Button onClick={onClick} className="btn">
+        <Logo src="/google-logo.svg" />
+        Google 계정으로 {location.pathname === "/login" ? "로그인" : "회원가입"}
+      </Button>
+    </>
   );
 }
 

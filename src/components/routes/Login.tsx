@@ -10,6 +10,7 @@ import {
   Error,
   Form,
   Input,
+  Or,
   Switcher,
   Wrapper,
 } from "../common/Auth-components";
@@ -107,6 +108,7 @@ const Login = () => {
         </Button>
       </Form>
       {error !== "" ? <Error>{error}</Error> : null}
+      <Or>or</Or>
       <GoogleBtn />
       <Switcher>
         아직 회원이 아니신가요?{" "}

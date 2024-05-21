@@ -1,5 +1,7 @@
+import Posts from "../Board/Posts";
+
 const Board = () => {
-  return <></>;
+  return <Posts />;
 };
 
 export default Board;
