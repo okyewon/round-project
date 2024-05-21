@@ -6,6 +6,25 @@ import Loading from "./components/common/Loading";
 import router from "./Router";
 import { auth } from "./firebase";
 
+const App = (): JSX.Element => {
+  const [isLoading, setLoading] = useState(true);
+  const init = async () => {
+    await auth.authStateReady();
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    init();
+  }, []);
+
+  return (
+    <>
+      <GlobalStyles />
+      {isLoading ? <Loading /> : <RouterProvider router={router} />}
+    </>
+  );
+};
+
 const GlobalStyles = createGlobalStyle`
   ${reset};
   :root {
@@ -28,24 +47,4 @@ const GlobalStyles = createGlobalStyle`
     cursor: pointer;
   }
 `;
-
-const App = (): JSX.Element => {
-  const [isLoading, setLoading] = useState(true);
-  const init = async () => {
-    await auth.authStateReady();
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    init();
-  }, []);
-
-  return (
-    <>
-      <GlobalStyles />
-      {isLoading ? <Loading /> : <RouterProvider router={router} />}
-    </>
-  );
-};
-
 export default App;
