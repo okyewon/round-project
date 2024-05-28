@@ -7,6 +7,7 @@ import { useLocation, useNavigate } from "react-router";
 
 const PostWrite = () => {
   const [isLoading, setLoading] = useState(false);
+  const [title, setTitle] = useState("");
   const [post, setPost] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [initialFileUrl, setInitialFileUrl] = useState<string | null>(null);
@@ -24,6 +25,7 @@ const PostWrite = () => {
           if (docSnap.exists()) {
             const postData = docSnap.data();
             setPost(postData.post);
+            setTitle(postData.title);
             if (postData.photo) {
               setInitialFileUrl(postData.photo);
             }
@@ -39,7 +41,12 @@ const PostWrite = () => {
   }, [postId]);
 
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setPost(e.target.value);
+    const { id } = e.target;
+    if (id === "title") {
+      setTitle(e.target.value);
+    } else if (id === "text") {
+      setPost(e.target.value);
+    }
   };
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,11 +74,13 @@ const PostWrite = () => {
       if (postId) {
         docRef = doc(db, "posts", postId);
         await updateDoc(docRef, {
+          title,
           post,
           updateAt: Date.now(),
         });
       } else {
         docRef = await addDoc(collection(db, "posts"), {
+          title,
           post,
           createAt: Date.now(),
           username: user.displayName || "Anonymous",
@@ -103,12 +112,21 @@ const PostWrite = () => {
   return (
     <Wrapper className="container">
       <Form onSubmit={onSubmit}>
+        <TitleArea
+          required
+          rows={1}
+          onChange={onChange}
+          value={title}
+          placeholder="제목을 입력해주세요."
+          id="title"
+        />
         <TextArea
           required
           onChange={onChange}
           value={post}
-          placeholder="what is happening?"
+          placeholder=""
           disabled={isLoading}
+          id="text"
         />
         <AttachFileButton htmlFor="file">
           {file
@@ -148,23 +166,29 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 10px;
+
+  #title,
+  #text {
+    width: 100%;
+    padding: 20px;
+    border: 2px solid #efefef;
+    border-radius: 20px;
+    font-size: 1rem;
+    resize: none;
+    &::placeholder {
+      font-size: 1rem;
+    }
+    &:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+  }
 `;
 
+const TitleArea = styled.textarea``;
+
 const TextArea = styled.textarea`
-  width: 100%;
   height: 50vh;
-  padding: 20px;
-  border: 2px solid #efefef;
-  border-radius: 20px;
-  font-size: 1rem;
-  resize: none;
-  &::placeholder {
-    font-size: 1rem;
-  }
-  &:focus {
-    outline: none;
-    border-color: var(--primary-color);
-  }
 `;
 
 const AttachFileButton = styled.label`

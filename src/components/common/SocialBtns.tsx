@@ -34,7 +34,7 @@ export default function GoogleBtn() {
         createdAt: new Date(),
       });
 
-      navigate("/");
+      navigate("/home", { replace: true });
     } catch (e) {
       if (e instanceof FirebaseError) {
         e.code === "auth/account-exists-with-different-credential"

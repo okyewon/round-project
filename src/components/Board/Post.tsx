@@ -1,14 +1,27 @@
 import styled from "styled-components";
-import { FaHouseMedical, FaRegTrashCan } from "react-icons/fa6";
+import { FaBookmark, FaHouseMedical, FaRegTrashCan } from "react-icons/fa6";
 import { auth, db, storage } from "../../firebase";
-import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
-import { deleteObject, ref } from "firebase/storage";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
+import { deleteObject, getDownloadURL, ref } from "firebase/storage";
 import { RiEditLine } from "react-icons/ri";
 import { useEffect, useRef, useState } from "react";
-import { FaCheck } from "react-icons/fa";
 import { IPost } from "./Posts";
 import { useNavigate } from "react-router";
 import { PiPersonArmsSpreadFill } from "react-icons/pi";
+import { MdOutlinePets } from "react-icons/md";
+import { Img } from "../common/Mypage-components";
+import { IoIosMore } from "react-icons/io";
+import { FaRegBookmark } from "react-icons/fa";
+import { FirebaseError } from "firebase/app";
 
 interface IUser {
   createdAt: number;
@@ -17,32 +30,75 @@ interface IUser {
   userType: "shelter" | "personal";
 }
 
-const Post = ({ userId, username, photo, post, id }: IPost) => {
-  const user = auth.currentUser?.uid;
+const Post = ({ userId, username, photo, title, post, id }: IPost) => {
+  const currentUserId = auth.currentUser?.uid;
+  if (!currentUserId || !id) {
+    return;
+  }
   const dbTextRef = useRef(null);
-  const editTextRef = useRef(null);
   const navigator = useNavigate();
-  const [editMode, setEditMode] = useState(false);
-  const [text, setText] = useState(post);
+  const [avatar, setAvatar] = useState("");
   const [type, setType] = useState<IUser["userType"]>("personal");
+  const [more, setMore] = useState(false);
+  const [scrap, setScrap] = useState(false);
 
   useEffect(() => {
+    const getAvatarImg = async () => {
+      try {
+        const locationRef = ref(storage, `avatars/${userId}`);
+        const avatarURL = await getDownloadURL(locationRef);
+        setAvatar(avatarURL);
+      } catch (e) {
+        if (
+          e instanceof FirebaseError &&
+          e.code === "storage/object-not-found"
+        ) {
+          setAvatar("");
+        } else {
+          console.log(e);
+        }
+      }
+    };
+
     const getType = async () => {
       const docSnap = await getDoc(doc(db, "users", userId));
       const { userType } = docSnap.data() as IUser;
       setType(userType);
     };
 
+    const getBookmarks = async () => {
+      const userBookmarksCollection = collection(
+        db,
+        "bookmarks",
+        currentUserId,
+        "userBookmarks",
+      );
+
+      try {
+        const q = query(userBookmarksCollection, where("postId", "==", id));
+        const querySnapshot = await getDocs(q);
+        setScrap(!querySnapshot.empty);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    getAvatarImg();
     getType();
+    getBookmarks();
   }, []);
+
+  const toggleMore = () => {
+    more ? setMore(false) : setMore(true);
+  };
 
   const onDelete = async () => {
     const ok = confirm("게시물을 삭제하시겠어요?");
-    if (!ok || user !== userId) return;
+    if (!ok || currentUserId !== userId) return;
     try {
       await deleteDoc(doc(db, "posts", id));
       if (photo) {
-        const photoRef = ref(storage, `posts/${user}/${id}`);
+        const photoRef = ref(storage, `posts/${currentUserId}/${id}`);
         await deleteObject(photoRef);
       }
     } catch (e) {
@@ -51,78 +107,96 @@ const Post = ({ userId, username, photo, post, id }: IPost) => {
   };
 
   const onEdit = async () => {
-    if (user !== userId) return;
-
+    if (currentUserId !== userId) return;
     navigator("/post-write", { state: id });
   };
 
-  const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setText(e.target.value);
-  };
+  const toggleScrap = async () => {
+    const userBookmarksCollection = collection(
+      db,
+      "bookmarks",
+      currentUserId,
+      "userBookmarks",
+    );
 
-  const saveEdit = async () => {
     try {
-      await updateDoc(doc(db, "posts", id), {
-        post: text,
-      });
-      setEditMode(false);
+      const q = query(userBookmarksCollection, where("postId", "==", id));
+      const querySnapshot = await getDocs(q);
+      console.log(querySnapshot);
+      if (!querySnapshot.empty) {
+        querySnapshot.forEach(async (doc) => {
+          await deleteDoc(doc.ref);
+        });
+        setScrap(false);
+      } else {
+        await addDoc(userBookmarksCollection, {
+          postId: id,
+        });
+        setScrap(true);
+      }
     } catch (e) {
       console.log(e);
     }
   };
 
   return (
-    <Wrapper>
+    <Wrapper className="post-item">
       <Column className="texts">
-        <User>
-          {type === "shelter" ? <FaHouseMedical /> : <PiPersonArmsSpreadFill />}
-          <Username>{username}</Username>
-        </User>
-        {editMode ? (
-          <EditText
-            ref={editTextRef}
-            id="edit-tweet"
-            required
-            rows={3}
-            maxLength={350}
-            onChange={onChange}
-            value={text}
-          ></EditText>
-        ) : (
-          <Payload ref={dbTextRef} id="post">
-            {post}
-          </Payload>
-        )}
-        {user === userId ? (
-          <UserButtons>
-            {editMode ? (
-              <UserButton className="save" onClick={saveEdit} type="button">
-                <FaCheck />
-              </UserButton>
-            ) : (
-              <UserButton className="edit" onClick={onEdit} type="button">
-                <RiEditLine />
-              </UserButton>
-            )}
+        <UserInfo>
+          {type === "shelter" ? (
+            <UserType className="blue">
+              <FaHouseMedical /> 보호센터
+            </UserType>
+          ) : (
+            <UserType className="pink">
+              <PiPersonArmsSpreadFill /> 개인
+            </UserType>
+          )}
+          <User>
+            <Avatar>{avatar ? <Img src={avatar} /> : <MdOutlinePets />}</Avatar>
+            <Username>{username}</Username>
+          </User>
+        </UserInfo>
+        <Title>{title}</Title>
+        <Payload ref={dbTextRef} id="post">
+          {post}
+        </Payload>
+      </Column>
+      {currentUserId === userId ? (
+        <More onClick={toggleMore} className={more ? "on" : ""}>
+          <IoIosMore />
+          <UserButtons className="user-btns">
+            <UserButton className="edit" onClick={onEdit} type="button">
+              <RiEditLine />
+              수정하기
+            </UserButton>
             <UserButton className="delete" onClick={onDelete} type="button">
               <FaRegTrashCan />
+              삭제하기
             </UserButton>
           </UserButtons>
-        ) : null}
-      </Column>
-      {photo ? (
-        <Column>
+        </More>
+      ) : (
+        <BookmarkBtn onClick={toggleScrap}>
+          {scrap ? <FaBookmark /> : <FaRegBookmark />}
+        </BookmarkBtn>
+      )}
+      {/* {photo ? (
+        <Column className="photo">
           <Photo src={photo} />
         </Column>
-      ) : null}
+      ) : null} */}
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div`
+  position: relative;
   display: flex;
   justify-content: space-between;
+  align-items: flex-end;
   gap: 10px;
+  width: 100%;
   padding: 20px;
   border: 1px solid rgba(207, 207, 207, 0.5);
   border-radius: 15px;
@@ -133,14 +207,50 @@ const Column = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    gap: 10px;
-    width: 100%;
+    gap: 0.5rem;
+    width: calc(100% - 50px);
+    min-height: 100px;
+  }
+`;
+
+const UserInfo = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+`;
+
+const UserType = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0.3rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  color: #666;
+  &.blue {
+    background-color: #def2ff;
+  }
+  &.pink {
+    background-color: #ffdee3;
   }
 `;
 
 const User = styled.div`
   display: flex;
+  align-items: center;
   gap: 5px;
+`;
+
+const Avatar = styled.div`
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  font-size: 1rem;
 `;
 
 const Username = styled.span`
@@ -148,62 +258,88 @@ const Username = styled.span`
   font-size: 1rem;
 `;
 
+const Title = styled.h3`
+  font-size: 1.3rem;
+  font-weight: 700;
+`;
+
 const Payload = styled.p`
-  display: -webkit-inline-box;
-  flex: 1;
-  width: 100%;
+  width: calc(100% - 130px);
   margin: 0;
   font-size: 1rem;
-  word-wrap: break-word;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
   text-overflow: ellipsis;
+  white-space: nowrap;
   overflow: hidden;
 `;
 
-const EditText = styled.textarea`
-  width: 100%;
-  padding: 20px;
-  border: 1px solid yellow;
-  border-radius: 10px;
-  background-color: #000;
-  font-size: 1rem;
-  color: white;
-  resize: none;
-  &:focus {
-    outline: none;
+const More = styled.div`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50px;
+  height: 40px;
+  cursor: pointer;
+  &.on {
+    .user-btns {
+      transform: scale(1);
+    }
   }
 `;
 
 const UserButtons = styled.div`
-  display: flex;
-  gap: 5px;
+  display: grid;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  grid-template-columns: max-content;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  transform: scale(0);
+  transform-origin: 70% top;
+  transition: all 0.3s;
 `;
 
 const UserButton = styled.button`
-  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
   border: 0;
-  border-radius: 5px;
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   cursor: pointer;
-
-  &.edit {
-    background-color: #77ff00;
-  }
+  transition: all 0.2s;
 
   &.delete {
-    background-color: orangered;
-    color: #fff;
+    border-top: 1px solid #ccc;
+    color: orangered;
+  }
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
   }
 `;
 
-const Photo = styled.img`
-  width: 100px;
-  height: 100px;
-  border-radius: 15px;
-  object-fit: cover;
+const BookmarkBtn = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: var(--primary-color);
 `;
+
+// const Photo = styled.img`
+//   width: 100px;
+//   height: 100px;
+//   border-radius: 15px;
+//   object-fit: cover;
+// `;
 
 export default Post;

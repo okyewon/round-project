@@ -4,7 +4,7 @@ import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../../firebase";
 import { Button, Form, Input, Wrapper } from "../common/Auth-components";
 
-const Login = () => {
+const ResetPassword = () => {
   const navigate = useNavigate();
   const [isLoading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -62,4 +62,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ResetPassword;

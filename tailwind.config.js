@@ -5,10 +5,11 @@ export default {
     screens: {
       mobile: "640px",
       tablet: "920px",
-      desktop: "1000px",
+      desktop: "1200px",
     },
     container: {
       center: true,
+      padding: "1rem",
     },
   },
   plugins: [require("daisyui")],

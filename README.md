@@ -17,14 +17,20 @@ If you are developing a production application, we recommend updating the config
 export default {
   // other rules...
   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
+    ecmaVersion: "latest",
+    sourceType: "module",
+    project: ["./tsconfig.json", "./tsconfig.node.json"],
     tsconfigRootDir: __dirname,
   },
-}
+};
 ```
 
 - Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
 - Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
 - Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+
+## MyPage
+
+- MyPage는 중첩 Router로, 카테고리들이 각각 자식 Route로 들어가있습니다.
+- 부모 Route인 MyPage에서 비동기 데이터를 받아온 뒤, 체크하고 자식인 Outlet 컴포넌트들에게 필요한 데이터를 props로 넘겨줍니다.
+- 이 때, Outlet에 props를 넘겨주기 위해 useOuletContext() Hook을 사용했습니다.

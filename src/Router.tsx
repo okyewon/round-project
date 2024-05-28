@@ -9,6 +9,9 @@ import ProtectedRoute from "./components/common/ProtectedRoute";
 import ResetPassword from "./components/routes/ResetPassword";
 import PostWrite from "./components/routes/PostWrite";
 import Home from "./components/routes/Home";
+import Bookmark from "./components/routes/Bookmark";
+import Mypost from "./components/routes/MyPost";
+import AccountSetting from "./components/routes/AccountSetting";
 
 const router = createBrowserRouter([
   {
@@ -38,6 +41,20 @@ const router = createBrowserRouter([
       {
         path: "mypage",
         element: <Mypage />,
+        children: [
+          {
+            path: "bookmark",
+            element: <Bookmark />,
+          },
+          {
+            path: "my-post",
+            element: <Mypost />,
+          },
+          {
+            path: "account-setting",
+            element: <AccountSetting />,
+          },
+        ],
       },
     ],
   },
