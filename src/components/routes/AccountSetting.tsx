@@ -26,22 +26,16 @@ const AccountSetting = () => {
   const { providerData } = user;
 
   useEffect(() => {
-    if (
-      providerData.length === 1 &&
-      providerData[0].providerId === "password"
-    ) {
-      return;
-    } else if (providerData.length > 1) {
-      const providerIds = providerData.map((provider) => {
-        return provider.providerId;
-      });
+    const providerIds = providerData.map((provider) => provider.providerId);
+    if (providerData.length > 1) {
       if (social.length === 1 && social[0] === "password") {
         setSocial([]);
       } else {
-        setSocial(providerIds);
+        setSocial(providerIds.filter((id) => id !== "password"));
       }
     }
-  }, []);
+    console.log(social);
+  }, [providerData]);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
@@ -99,7 +93,7 @@ const AccountSetting = () => {
       <Social>
         <Text>연결된 계정</Text>
         <Linked>
-          {social ? (
+          {social.length > 0 ? (
             social.map((item) => {
               const logo = socialLogos[item];
               return logo ? (
@@ -202,6 +196,10 @@ const Logo = styled.img`
   width: 60px;
 `;
 
-const Default = styled.p``;
+const Default = styled.p`
+  flex-grow: 1;
+  font-size: 1.1rem;
+  color: #888;
+`;
 
 export default AccountSetting;

@@ -8,7 +8,14 @@ export const Avatar = styled.label`
   width: 200px;
   height: 200px;
   border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.2);
   cursor: pointer;
+  color: rgba(0, 0, 0, 0.2);
+  svg {
+    width: 90%;
+    height: 90%;
+    border-radius: 50%;
+  }
 `;
 
 export const AvatarUpload = styled.input`
