@@ -72,9 +72,19 @@ const Mypage = () => {
 
       // onSnapshot이 구독 취소 함수를 반환
       unsubscribe = await onSnapshot(postsQuery, (snapshot) => {
-        const posts = snapshot.docs.map((doc) => {
-          const { title, post, createAt, userId, username, photo } = doc.data();
-          return { title, post, createAt, userId, username, photo, id: doc.id };
+        const posts: IPost[] = snapshot.docs.map((doc) => {
+          const { title, post, createAt, userId, username, photo, type } =
+            doc.data();
+          return {
+            title,
+            post,
+            createAt,
+            userId,
+            username,
+            photo,
+            type,
+            id: doc.id,
+          };
         });
 
         setPosts(posts);
@@ -153,7 +163,7 @@ const Aside = styled.div`
   min-height: 720px;
   border-radius: 1rem;
   background-color: #fff;
-  box-shadow: 0 0 1rem rgba(0, 214, 243, 0.2) inset;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
 `;
 
 const UserInfo = styled.div`

@@ -12,6 +12,7 @@ import {
   Input,
   Or,
   Switcher,
+  Type,
   Types,
   Wrapper,
 } from "../common/Auth-components";
@@ -95,15 +96,24 @@ const CreateAccount = () => {
       <h2 className="text-4xl font-bold">회원가입</h2>
       <Form onSubmit={onSubmit}>
         <Types>
-          <input onChange={onChange} type="radio" name="type" value="shelter" />
-          보호소
-          <input
-            onChange={onChange}
-            type="radio"
-            name="type"
-            value="personal"
-          />
-          개인
+          <Type>
+            <input
+              onChange={onChange}
+              type="radio"
+              name="type"
+              value="shelter"
+            />
+            보호센터
+          </Type>
+          <Type>
+            <input
+              onChange={onChange}
+              type="radio"
+              name="type"
+              value="personal"
+            />
+            개인
+          </Type>
         </Types>
         <label className="input input-bordered flex items-center gap-2">
           <svg

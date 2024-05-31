@@ -116,7 +116,7 @@ const AccountSetting = () => {
 };
 
 const ASRoute = styled(MyRoute)`
-  padding-top: 60px;
+  padding-top: 2rem;
 `;
 
 const Account = styled.div`

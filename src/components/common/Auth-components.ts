@@ -7,18 +7,48 @@ export const Wrapper = styled.div`
   width: 100%;
   max-width: 550px;
   margin: 100px auto 0;
-  padding: 3rem 0;
+  padding: 3rem 2rem;
   border-radius: 20px;
   background-color: #eeeeee;
 `;
 
-export const Types = styled.div``;
+export const Types = styled.div`
+  display: flex;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  overflow: hidden;
+`;
+
+export const Type = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  padding: 0.8rem 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  cursor: pointer;
+  &:first-child {
+    border-right: 1px solid rgba(0, 0, 0, 0.2);
+  }
+  &:hover,
+  &:checked {
+    background-color: var(--primary-color);
+    color: #fff;
+  }
+  input {
+    display: none;
+  }
+`;
 
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 90%;
+  width: 100%;
   margin-top: 30px;
 `;
 
@@ -46,7 +76,6 @@ export const Error = styled.span`
 
 export const Or = styled.p`
   position: relative;
-  width: 90%;
   margin: 1.5rem auto 1rem;
   font-size: 1rem;
   color: gray;

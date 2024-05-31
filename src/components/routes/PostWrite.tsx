@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { auth, db, storage } from "../../firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useLocation, useNavigate } from "react-router";
+import { IUser } from "../Board/Post";
 
 const PostWrite = () => {
   const [isLoading, setLoading] = useState(false);
@@ -11,11 +12,16 @@ const PostWrite = () => {
   const [post, setPost] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [initialFileUrl, setInitialFileUrl] = useState<string | null>(null);
+  const [type, setType] = useState<IUser["userType"]>("personal");
   const navigate = useNavigate();
   const location = useLocation();
   const postId = location.state;
+  const user = auth.currentUser;
 
   useEffect(() => {
+    if (!user) {
+      return;
+    }
     if (postId) {
       const fetchPost = async () => {
         setLoading(true);
@@ -26,6 +32,7 @@ const PostWrite = () => {
             const postData = docSnap.data();
             setPost(postData.post);
             setTitle(postData.title);
+            setType(postData.type);
             if (postData.photo) {
               setInitialFileUrl(postData.photo);
             }
@@ -37,6 +44,13 @@ const PostWrite = () => {
         }
       };
       fetchPost();
+    } else {
+      const getType = async () => {
+        const docSnap = await getDoc(doc(db, "users", user.uid));
+        const { userType } = docSnap.data() as IUser;
+        setType(userType);
+      };
+      getType();
     }
   }, [postId]);
 
@@ -64,7 +78,6 @@ const PostWrite = () => {
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const user = auth.currentUser;
     if (!user || isLoading || post === "") return;
 
     try {
@@ -85,6 +98,7 @@ const PostWrite = () => {
           createAt: Date.now(),
           username: user.displayName || "Anonymous",
           userId: user.uid,
+          type: type,
         });
       }
 
@@ -144,9 +158,7 @@ const PostWrite = () => {
         />
         <SubmitBtn
           type="submit"
-          value={
-            isLoading ? "Posting..." : postId ? "Update Post" : "Post Tweet"
-          }
+          value={isLoading ? "Posting..." : postId ? "Update Post" : "Post"}
           disabled={isLoading}
         />
       </Form>
@@ -189,6 +201,7 @@ const TitleArea = styled.textarea``;
 
 const TextArea = styled.textarea`
   height: 50vh;
+  line-height: 1.5;
 `;
 
 const AttachFileButton = styled.label`

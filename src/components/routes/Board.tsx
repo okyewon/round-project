@@ -1,39 +1,115 @@
 import styled from "styled-components";
-import Posts from "../Board/Posts";
+import Posts, { IPost } from "../Board/Posts";
 import { MdEdit } from "react-icons/md";
 import { Link } from "react-router-dom";
+import { Button, Form, Input } from "../Map/KakaoMapStyle";
+import { IoSearch } from "react-icons/io5";
+import React, { createContext, useState } from "react";
+
+export const TypeContext = createContext("all");
+export const KeywordContext = createContext("");
 
 const Board = () => {
+  const [searchValue, setSearchValue] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const [type, setType] = useState<IPost["type"]>("all");
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setType(e.target.value as IPost["type"]);
+  };
+  const searchPosts = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!searchValue.trim()) {
+      alert("내용을 입력해주세요!");
+      return;
+    } else {
+      setKeyword(searchValue);
+    }
+  };
+
   return (
     <Wrapper className="container">
-      <Filter></Filter>
+      {/* <Filter></Filter> */}
       <Contents>
-        <Link to="/post-write" className="post-btn">
-          글쓰기 <MdEdit />
-        </Link>
-        <Posts />
+        <Top>
+          <Types>
+            <Type isactive={type === "all" ? "true" : "false"}>
+              <input
+                type="radio"
+                name="type"
+                value="all"
+                checked={type === "all"}
+                onChange={onChange}
+              />
+              전체
+            </Type>
+            <Type isactive={type === "shelter" ? "true" : "false"}>
+              <input
+                type="radio"
+                name="type"
+                value="shelter"
+                checked={type === "shelter"}
+                onChange={onChange}
+              />
+              보호센터
+            </Type>
+            <Type isactive={type === "personal" ? "true" : "false"}>
+              <input
+                type="radio"
+                name="type"
+                value="personal"
+                checked={type === "personal"}
+                onChange={onChange}
+              />
+              개인
+            </Type>
+          </Types>
+          <BoardForm onSubmit={searchPosts}>
+            <Input
+              type="text"
+              value={searchValue}
+              id="keyword"
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="제목+내용 검색"
+            />
+            <Button type="submit">
+              <IoSearch />
+            </Button>
+          </BoardForm>
+          <Link to="/post-write" className="post-btn">
+            글쓰기 <MdEdit />
+          </Link>
+        </Top>
+        <KeywordContext.Provider value={keyword}>
+          <TypeContext.Provider value={type}>
+            <Posts />
+          </TypeContext.Provider>
+        </KeywordContext.Provider>
       </Contents>
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div`
-  display: grid;
+  /* display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 10px;
+  gap: 10px; */
+  max-width: 900px;
+  margin: 0 auto;
   padding: 120px 0;
 `;
 
-const Filter = styled.div`
-  background-color: #ccc;
-`;
+// const Filter = styled.div`
+//   padding: 0.5rem;
+//   background-color: #fff;
+//   border-radius: 10px;
+//   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+// `;
 
 const Contents = styled.div`
-  grid-column: span 3;
+  /* grid-column: span 3; */
   display: flex;
   flex-direction: column;
   gap: 10px;
-  align-items: flex-end;
   width: 100%;
 
   .post-btn {
@@ -48,6 +124,43 @@ const Contents = styled.div`
     font-weight: 500;
     color: #fff;
   }
+`;
+
+const Top = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+`;
+
+const Types = styled.div`
+  display: flex;
+  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+`;
+
+const Type = styled.label<{ isactive: string }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80px;
+  height: 100%;
+  background-color: ${({ isactive }) =>
+    isactive === "true" ? "var(--primary-color)" : "#fff"};
+  font-size: 1rem;
+  color: ${({ isactive }) => (isactive === "true" ? "#fff" : "#000")};
+  cursor: pointer;
+
+  &:not(:last-child) {
+    border-right: 1px solid rgba(0, 0, 0, 0.2);
+  }
+  input {
+    display: none;
+  }
+`;
+
+const BoardForm = styled(Form)`
+  flex-grow: 1;
 `;
 
 export default Board;

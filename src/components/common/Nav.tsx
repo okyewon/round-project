@@ -57,7 +57,8 @@ const List = styled.li`
     height: 46px;
     border-radius: 8px;
     background-color: #fff;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1);
     font-size: 1.3rem;
     font-weight: 500;
     transition: all 0.3s;

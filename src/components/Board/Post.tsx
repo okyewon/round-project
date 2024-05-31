@@ -23,7 +23,7 @@ import { IoIosMore } from "react-icons/io";
 import { FaRegBookmark } from "react-icons/fa";
 import { FirebaseError } from "firebase/app";
 
-interface IUser {
+export interface IUser {
   createdAt: number;
   displayName: string;
   email: string;
@@ -198,7 +198,8 @@ const Wrapper = styled.div`
   gap: 10px;
   width: 100%;
   padding: 20px;
-  border: 1px solid rgba(207, 207, 207, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1);
   border-radius: 15px;
 `;
 

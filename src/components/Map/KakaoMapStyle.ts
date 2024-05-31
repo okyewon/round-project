@@ -37,7 +37,7 @@ export const Input = styled.input`
   height: 2.5rem;
   padding: 0.8rem 1rem;
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.5);
 `;
 
 export const Button = styled.button`
