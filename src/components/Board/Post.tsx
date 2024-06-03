@@ -22,6 +22,7 @@ import { Img } from "../common/Mypage-components";
 import { IoIosMore } from "react-icons/io";
 import { FaRegBookmark } from "react-icons/fa";
 import { FirebaseError } from "firebase/app";
+import { Link } from "react-router-dom";
 
 export interface IUser {
   createdAt: number;
@@ -44,10 +45,14 @@ const Post = ({ userId, username, photo, title, post, id }: IPost) => {
 
   useEffect(() => {
     const getAvatarImg = async () => {
+      const locationRef = ref(storage, `avatars/${userId}`);
+
       try {
-        const locationRef = ref(storage, `avatars/${userId}`);
-        const avatarURL = await getDownloadURL(locationRef);
-        setAvatar(avatarURL);
+        const fileExists = await checkIfFileExists(locationRef);
+        if (fileExists) {
+          const avatarURL = await getDownloadURL(locationRef);
+          setAvatar(avatarURL);
+        }
       } catch (e) {
         if (
           e instanceof FirebaseError &&
@@ -55,7 +60,7 @@ const Post = ({ userId, username, photo, title, post, id }: IPost) => {
         ) {
           setAvatar("");
         } else {
-          console.log(e);
+          setAvatar("");
         }
       }
     };
@@ -122,7 +127,7 @@ const Post = ({ userId, username, photo, title, post, id }: IPost) => {
     try {
       const q = query(userBookmarksCollection, where("postId", "==", id));
       const querySnapshot = await getDocs(q);
-      console.log(querySnapshot);
+
       if (!querySnapshot.empty) {
         querySnapshot.forEach(async (doc) => {
           await deleteDoc(doc.ref);
@@ -162,6 +167,7 @@ const Post = ({ userId, username, photo, title, post, id }: IPost) => {
           {post}
         </Payload>
       </Column>
+      <DetailLink to={`/post-detail/${id}`}></DetailLink>
       {currentUserId === userId ? (
         <More onClick={toggleMore} className={more ? "on" : ""}>
           <IoIosMore />
@@ -181,21 +187,12 @@ const Post = ({ userId, username, photo, title, post, id }: IPost) => {
           {scrap ? <FaBookmark /> : <FaRegBookmark />}
         </BookmarkBtn>
       )}
-      {/* {photo ? (
-        <Column className="photo">
-          <Photo src={photo} />
-        </Column>
-      ) : null} */}
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div`
   position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 10px;
   width: 100%;
   padding: 20px;
   border: 1px solid rgba(0, 0, 0, 0.2);
@@ -273,6 +270,14 @@ const Payload = styled.p`
   overflow: hidden;
 `;
 
+const DetailLink = styled(Link)`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+`;
+
 const More = styled.div`
   position: absolute;
   top: 10px;
@@ -335,12 +340,5 @@ const BookmarkBtn = styled.div`
   cursor: pointer;
   color: var(--primary-color);
 `;
-
-// const Photo = styled.img`
-//   width: 100px;
-//   height: 100px;
-//   border-radius: 15px;
-//   object-fit: cover;
-// `;
 
 export default Post;

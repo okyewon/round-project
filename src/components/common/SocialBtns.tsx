@@ -8,43 +8,31 @@ import {
 import styled from "styled-components";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FirebaseError } from "firebase/app";
-import { auth, db } from "../../firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { auth } from "../../firebase";
+import TypeModal from "./TypeModal";
 import { useState } from "react";
-import { Type, Types } from "./Auth-components";
 
 export default function GoogleBtn() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [type, setType] = useState("");
-
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {
-      target: { name, value },
-    } = e;
-    if (name === "type") {
-      setType(value);
-    }
-  };
+  const [modal, setModal] = useState(false);
 
   const onClick = async () => {
-    if (!type) {
-      alert("보호센터 or 개인 유형을 선택해주세요.");
-      return;
-    }
-
     try {
       const provider = new GoogleAuthProvider();
       // 구글 인증 수행
       const result = await signInWithPopup(auth, provider);
       const googleUser = result.user;
       const googleCredential = GoogleAuthProvider.credentialFromResult(result);
+      console.log(googleUser.email);
+      console.log(googleCredential);
 
       if (googleUser.email && googleCredential) {
         const signInMethods = await fetchSignInMethodsForEmail(
           auth,
           googleUser.email,
         );
+        console.log(signInMethods);
 
         if (signInMethods.includes("password")) {
           // 이메일/비밀번호 계정이 존재하는 경우
@@ -62,13 +50,6 @@ export default function GoogleBtn() {
               await linkWithCredential(emailUser.user, googleCredential);
               console.log("계정 병합 성공:", emailUser.user);
 
-              await setDoc(doc(db, "users", emailUser.user.uid), {
-                email: googleUser.email,
-                displayName: googleUser.displayName,
-                userType: type,
-                createdAt: new Date(),
-              });
-
               navigate("/home", { replace: true });
             } catch (error) {
               console.error("이메일/비밀번호 로그인 실패:", error);
@@ -76,14 +57,7 @@ export default function GoogleBtn() {
             }
           }
         } else {
-          //todo: type 설정 물어보기(type버튼 삭제 후)
-          await setDoc(doc(db, "users", googleUser.uid), {
-            email: googleUser.email,
-            displayName: googleUser.displayName,
-            userType: type,
-            createdAt: new Date(),
-          });
-          navigate("/home", { replace: true });
+          setModal(true);
         }
       }
     } catch (e) {
@@ -95,25 +69,11 @@ export default function GoogleBtn() {
 
   return (
     <>
-      <Types>
-        <Type>
-          <input onChange={onChange} type="radio" name="type" value="shelter" />
-          보호센터
-        </Type>
-        <Type>
-          <input
-            onChange={onChange}
-            type="radio"
-            name="type"
-            value="personal"
-          />
-          개인
-        </Type>
-      </Types>
       <Button onClick={onClick} className="btn">
         <Logo src="/google-logo.svg" />
         Google 계정으로 {location.pathname === "/login" ? "로그인" : "회원가입"}
       </Button>
+      {modal ? <TypeModal /> : null}
     </>
   );
 }

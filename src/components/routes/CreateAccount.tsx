@@ -1,10 +1,17 @@
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import {
+  EmailAuthProvider,
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  fetchSignInMethodsForEmail,
+  linkWithCredential,
+  signInWithPopup,
+  updateProfile,
+} from "firebase/auth";
 import { useState } from "react";
-import { auth, db } from "../../firebase";
-import { useNavigate } from "react-router";
+import { auth } from "../../firebase";
 import { FirebaseError } from "firebase/app";
 import { errorMessage } from "../constants/constants";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Button,
   Error,
@@ -12,12 +19,12 @@ import {
   Input,
   Or,
   Switcher,
-  Type,
-  Types,
   Wrapper,
 } from "../common/Auth-components";
 import GoogleBtn from "../common/SocialBtns";
-import { doc, setDoc } from "firebase/firestore";
+import TypeModal from "../common/TypeModal";
+
+export type UserType = "shelter" | "personal";
 
 const CreateAccount = () => {
   const navigate = useNavigate();
@@ -25,8 +32,8 @@ const CreateAccount = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [type, setType] = useState("");
   const [error, setError] = useState("");
+  const [modal, setModal] = useState(false);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {
@@ -38,8 +45,6 @@ const CreateAccount = () => {
       setEmail(value);
     } else if (name === "password") {
       setPassword(value);
-    } else if (name === "type") {
-      setType(value);
     }
   };
 
@@ -47,34 +52,32 @@ const CreateAccount = () => {
     e.preventDefault();
     setError("");
 
-    if (
-      isLoading ||
-      name === "" ||
-      email === "" ||
-      password === "" ||
-      type === ""
-    )
-      return;
+    if (isLoading || name === "" || email === "" || password === "") return;
+    setLoading(true);
+
     try {
-      setLoading(true);
-      const credentials = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      );
+      const signInMethods = await fetchSignInMethodsForEmail(auth, email);
 
-      await updateProfile(credentials.user, {
-        displayName: name,
-      });
+      if (signInMethods.includes("google.com")) {
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
 
-      await setDoc(doc(db, "users", credentials.user.uid), {
-        email: credentials.user.email,
-        displayName: name,
-        userType: type,
-        createdAt: new Date(),
-      });
+        const credential = EmailAuthProvider.credential(email, password);
+        await linkWithCredential(result.user, credential);
+        await updateProfile(result.user, { displayName: name });
+        navigate("/home", { replace: true });
+      } else {
+        const credentials = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password,
+        );
 
-      navigate("/home", { replace: true });
+        await updateProfile(credentials.user, {
+          displayName: name,
+        });
+        setModal(true);
+      }
     } catch (e) {
       if (e instanceof FirebaseError) {
         if (
@@ -95,26 +98,6 @@ const CreateAccount = () => {
     <Wrapper>
       <h2 className="text-4xl font-bold">회원가입</h2>
       <Form onSubmit={onSubmit}>
-        <Types>
-          <Type>
-            <input
-              onChange={onChange}
-              type="radio"
-              name="type"
-              value="shelter"
-            />
-            보호센터
-          </Type>
-          <Type>
-            <input
-              onChange={onChange}
-              type="radio"
-              name="type"
-              value="personal"
-            />
-            개인
-          </Type>
-        </Types>
         <label className="input input-bordered flex items-center gap-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -173,7 +156,7 @@ const CreateAccount = () => {
             name="password"
             className="grow"
             value={password}
-            placeholder="비밀번호"
+            placeholder="비밀번호 6자리 이상"
             required
           />
         </label>
@@ -187,6 +170,7 @@ const CreateAccount = () => {
       <Switcher>
         이미 가입하셨다면? <Link to="/login">로그인 &rarr;</Link>
       </Switcher>
+      {modal ? <TypeModal /> : null}
     </Wrapper>
   );
 };

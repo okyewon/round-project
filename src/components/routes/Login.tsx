@@ -99,7 +99,7 @@ const Login = () => {
             name="password"
             className="grow"
             value={password}
-            placeholder="비밀번호"
+            placeholder="비밀번호 6자리 이상"
             required
           />
         </label>

@@ -12,6 +12,7 @@ import Home from "./components/routes/Home";
 import Bookmark from "./components/routes/Bookmark";
 import Mypost from "./components/routes/MyPost";
 import AccountSetting from "./components/routes/AccountSetting";
+import PostDetail from "./components/routes/PostDetail";
 
 const router = createBrowserRouter([
   {
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
       {
         path: "post-write",
         element: <PostWrite />,
+      },
+      {
+        path: "post-detail/:id",
+        element: <PostDetail />,
       },
       {
         path: "mypage",
