@@ -11,7 +11,12 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { deleteObject, getDownloadURL, ref } from "firebase/storage";
+import {
+  StorageReference,
+  deleteObject,
+  getDownloadURL,
+  ref,
+} from "firebase/storage";
 import { RiEditLine } from "react-icons/ri";
 import { useEffect, useRef, useState } from "react";
 import { IPost } from "./Posts";
@@ -23,15 +28,28 @@ import { IoIosMore } from "react-icons/io";
 import { FaRegBookmark } from "react-icons/fa";
 import { FirebaseError } from "firebase/app";
 import { Link } from "react-router-dom";
+import {
+  Avatar,
+  BookmarkBtn,
+  Icon,
+  More,
+  User,
+  UserButton,
+  UserButtons,
+  UserInfo,
+  UserType,
+  Username,
+} from "./Post-components";
 
 export interface IUser {
   createdAt: number;
   displayName: string;
   email: string;
   userType: "shelter" | "personal";
+  photoURL?: string;
 }
 
-const Post = ({ userId, username, photo, title, post, id }: IPost) => {
+const Post = ({ userId, username, photo, title, post, type, id }: IPost) => {
   const currentUserId = auth.currentUser?.uid;
   if (!currentUserId || !id) {
     return;
@@ -39,36 +57,17 @@ const Post = ({ userId, username, photo, title, post, id }: IPost) => {
   const dbTextRef = useRef(null);
   const navigator = useNavigate();
   const [avatar, setAvatar] = useState("");
-  const [type, setType] = useState<IUser["userType"]>("personal");
   const [more, setMore] = useState(false);
   const [scrap, setScrap] = useState(false);
 
   useEffect(() => {
     const getAvatarImg = async () => {
-      const locationRef = ref(storage, `avatars/${userId}`);
-
-      try {
-        const fileExists = await checkIfFileExists(locationRef);
-        if (fileExists) {
-          const avatarURL = await getDownloadURL(locationRef);
-          setAvatar(avatarURL);
-        }
-      } catch (e) {
-        if (
-          e instanceof FirebaseError &&
-          e.code === "storage/object-not-found"
-        ) {
-          setAvatar("");
-        } else {
-          setAvatar("");
-        }
+      const docRef = doc(db, "users", userId);
+      const docSnap = await getDoc(docRef);
+      const { photoURL } = docSnap.data() as IUser;
+      if (photoURL) {
+        setAvatar(photoURL);
       }
-    };
-
-    const getType = async () => {
-      const docSnap = await getDoc(doc(db, "users", userId));
-      const { userType } = docSnap.data() as IUser;
-      setType(userType);
     };
 
     const getBookmarks = async () => {
@@ -89,9 +88,8 @@ const Post = ({ userId, username, photo, title, post, id }: IPost) => {
     };
 
     getAvatarImg();
-    getType();
     getBookmarks();
-  }, []);
+  }, [userId, id]);
 
   const toggleMore = () => {
     more ? setMore(false) : setMore(true);
@@ -158,7 +156,15 @@ const Post = ({ userId, username, photo, title, post, id }: IPost) => {
             </UserType>
           )}
           <User>
-            <Avatar>{avatar ? <Img src={avatar} /> : <MdOutlinePets />}</Avatar>
+            <Avatar>
+              {avatar ? (
+                <Img src={avatar} />
+              ) : (
+                <Icon>
+                  <MdOutlinePets />
+                </Icon>
+              )}
+            </Avatar>
             <Username>{username}</Username>
           </User>
         </UserInfo>
@@ -211,51 +217,6 @@ const Column = styled.div`
   }
 `;
 
-const UserInfo = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const UserType = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 0.3rem;
-  border-radius: 5px;
-  font-size: 1rem;
-  color: #666;
-  &.blue {
-    background-color: #def2ff;
-  }
-  &.pink {
-    background-color: #ffdee3;
-  }
-`;
-
-const User = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 5px;
-`;
-
-const Avatar = styled.div`
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 1.8rem;
-  height: 1.8rem;
-  border-radius: 50%;
-  font-size: 1rem;
-`;
-
-const Username = styled.span`
-  font-weight: 600;
-  font-size: 1rem;
-`;
-
 const Title = styled.h3`
   font-size: 1.3rem;
   font-weight: 700;
@@ -276,69 +237,6 @@ const DetailLink = styled(Link)`
   left: 0;
   width: 100%;
   height: 100%;
-`;
-
-const More = styled.div`
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 50px;
-  height: 40px;
-  cursor: pointer;
-  &.on {
-    .user-btns {
-      transform: scale(1);
-    }
-  }
-`;
-
-const UserButtons = styled.div`
-  display: grid;
-  position: absolute;
-  top: 100%;
-  right: 0;
-  grid-template-columns: max-content;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #fff;
-  transform: scale(0);
-  transform-origin: 70% top;
-  transition: all 0.3s;
-`;
-
-const UserButton = styled.button`
-  display: flex;
-  align-items: center;
-  padding: 10px 15px;
-  border: 0;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &.delete {
-    border-top: 1px solid #ccc;
-    color: orangered;
-  }
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
-`;
-
-const BookmarkBtn = styled.div`
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.6rem;
-  cursor: pointer;
-  color: var(--primary-color);
 `;
 
 export default Post;
