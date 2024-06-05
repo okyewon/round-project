@@ -40,7 +40,7 @@ const router = createBrowserRouter([
         element: <PostWrite />,
       },
       {
-        path: "post-detail/:id",
+        path: "post-detail/:postId",
         element: <PostDetail />,
       },
       {
