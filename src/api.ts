@@ -18,6 +18,7 @@ const params = {
 
 export interface ShelterType {
   careNm: string;
+  orgNm: string;
   divisionNm: string;
   saveTrgtAnimal?: string;
   careAddr: string;
@@ -36,11 +37,9 @@ const fetchShelters = async () => {
   }
 };
 
-export const Shelters = () => {
-  const { status, data } = useQuery({
+export const useFetchShelters = () => {
+  return useQuery({
     queryKey: ["fetchShelters"],
     queryFn: fetchShelters,
   });
-
-  return { status, data };
 };

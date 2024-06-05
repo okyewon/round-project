@@ -4,51 +4,15 @@ import { MdGpsFixed } from "react-icons/md";
 import { IoSearch } from "react-icons/io5";
 import { useNavigate } from "react-router";
 import { FormEvent, useEffect, useState } from "react";
-import { ShelterType, useFetchShelters } from "../../api";
+import { useRecoilValue } from "recoil";
+import { shelterAtom } from "../store/shelterStore";
 
 const Home = () => {
   const name = auth.currentUser?.displayName;
   const navigate = useNavigate();
   const [value, setValue] = useState("");
   const [options, setOptions] = useState<string[]>([]);
-  const [shelters, setShelters] = useState<ShelterType[]>([]);
-  const { data, status } = useFetchShelters();
-
-  useEffect(() => {
-    if (status === "success" && data) {
-      const xmlString = data;
-
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlString, "application/xml");
-
-      const items = xmlDoc.getElementsByTagName("item");
-      const newShelters: ShelterType[] = [];
-      for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-        const shelter = {
-          careNm: item.getElementsByTagName("careNm")[0].textContent,
-          orgNm: item.getElementsByTagName("orgNm")[0].textContent,
-          divisionNm: item.getElementsByTagName("divisionNm")[0].textContent,
-          saveTrgtAnimal:
-            item.getElementsByTagName("saveTrgtAnimal")[0]?.textContent || null,
-          careAddr: item.getElementsByTagName("careAddr")[0].textContent,
-          lat: item.getElementsByTagName("lat")[0]?.textContent || null,
-          lng: item.getElementsByTagName("lng")[0]?.textContent || null,
-          closeDay:
-            item.getElementsByTagName("closeDay")[0]?.textContent || null,
-          careTel: item.getElementsByTagName("careTel")[0].textContent,
-        } as ShelterType;
-        newShelters.push(shelter);
-      }
-
-      setShelters((prevShelters) => {
-        if (JSON.stringify(prevShelters) !== JSON.stringify(newShelters)) {
-          return newShelters;
-        }
-        return prevShelters;
-      });
-    }
-  }, [data, status]);
+  const shelters = useRecoilValue(shelterAtom);
 
   useEffect(() => {
     const orgData = shelters.map((shelter) => {
@@ -57,8 +21,6 @@ const Home = () => {
     orgData.sort((a, b) => a.localeCompare(b));
     setOptions(orgData);
   }, [shelters]);
-
-  if (status === "pending") return;
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
