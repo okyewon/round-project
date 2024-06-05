@@ -23,13 +23,36 @@ export const SearchWrap = styled.div`
   margin: 0 0 30px 0;
   padding: 5px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.7);
   font-size: 1rem;
+`;
+
+export const SelectForm = styled.form`
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 1rem;
 `;
 
 export const Form = styled.form`
   position: relative;
   font-size: 1rem;
+`;
+
+export const Select = styled.select`
+  flex-grow: 1;
+  padding: 15px 20px;
+  border-radius: inherit;
+  background-color: transparent;
+  &:focus,
+  &:active {
+    outline: none;
+  }
+  option {
+    background-color: #efefef;
+    font-size: 1.1rem;
+  }
 `;
 
 export const Input = styled.input`
@@ -46,6 +69,11 @@ export const Button = styled.button`
   right: 1rem;
   height: 100%;
   vertical-align: middle;
+  font-size: 1.4rem;
+`;
+
+export const SelectButton = styled.button`
+  padding: 0 20px;
   font-size: 1.4rem;
 `;
 
