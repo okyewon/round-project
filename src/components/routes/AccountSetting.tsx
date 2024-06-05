@@ -34,7 +34,6 @@ const AccountSetting = () => {
         setSocial(providerIds.filter((id) => id !== "password"));
       }
     }
-    console.log(social);
   }, [providerData]);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {

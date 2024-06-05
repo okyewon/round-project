@@ -24,15 +24,12 @@ export default function GoogleBtn() {
       const result = await signInWithPopup(auth, provider);
       const googleUser = result.user;
       const googleCredential = GoogleAuthProvider.credentialFromResult(result);
-      console.log(googleUser.email);
-      console.log(googleCredential);
 
       if (googleUser.email && googleCredential) {
         const signInMethods = await fetchSignInMethodsForEmail(
           auth,
           googleUser.email,
         );
-        console.log(signInMethods);
 
         if (signInMethods.includes("password")) {
           // 이메일/비밀번호 계정이 존재하는 경우
