@@ -84,38 +84,40 @@ const PostWrite = () => {
       setLoading(true);
       let docRef;
 
-      if (postId) {
-        docRef = doc(db, "posts", postId);
-        await updateDoc(docRef, {
-          title,
-          post,
-          updateAt: Date.now(),
-        });
-      } else {
-        docRef = await addDoc(collection(db, "posts"), {
-          title,
-          post,
-          createAt: Date.now(),
-          username: user.displayName || "Anonymous",
-          userId: user.uid,
-          type: type,
-        });
-      }
-
-      if (file) {
-        const fileRef = ref(storage, `posts/${user.uid}/${docRef.id}`);
-        const result = await uploadBytes(fileRef, file);
-        const url = await getDownloadURL(result.ref);
-        await updateDoc(docRef, {
-          photo: url,
-        });
-      }
-
-      setPost("");
-      setFile(null);
-      setInitialFileUrl(null);
       const ok = confirm("게시물을 업로드 하시겠어요?");
-      if (ok) navigate("/board", { replace: true });
+      if (ok) {
+        if (postId) {
+          docRef = doc(db, "posts", postId);
+          await updateDoc(docRef, {
+            title,
+            post,
+            updateAt: Date.now(),
+          });
+        } else {
+          docRef = await addDoc(collection(db, "posts"), {
+            title,
+            post,
+            createAt: Date.now(),
+            username: user.displayName || "Anonymous",
+            userId: user.uid,
+            type: type,
+          });
+        }
+
+        if (file) {
+          const fileRef = ref(storage, `posts/${user.uid}/${docRef.id}`);
+          const result = await uploadBytes(fileRef, file);
+          const url = await getDownloadURL(result.ref);
+          await updateDoc(docRef, {
+            photo: url,
+          });
+        }
+
+        setPost("");
+        setFile(null);
+        setInitialFileUrl(null);
+        navigate("/board", { replace: true });
+      }
     } catch (e) {
       console.log(e);
     } finally {
