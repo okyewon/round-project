@@ -1,7 +1,6 @@
 import {
   collection,
   limit,
-  onSnapshot,
   orderBy,
   query,
   startAfter,
@@ -10,10 +9,11 @@ import {
   where,
   or,
   and,
+  QueryDocumentSnapshot,
+  DocumentData,
 } from "firebase/firestore";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { db } from "../../firebase";
-import { Unsubscribe } from "firebase/auth";
 import styled from "styled-components";
 import Post from "./Post";
 import { KeywordContext, TypeContext } from "../routes/Board";
@@ -39,178 +39,130 @@ const Posts = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
 
-  useEffect(() => {
-    const fetchTotalCount = async () => {
-      setIsLoading(true);
-      try {
-        const collectionRef = collection(db, "posts");
-        let q;
-        let snapshot;
+  const buildQuery = (
+    page: number,
+    lastDoc?: QueryDocumentSnapshot<DocumentData, DocumentData> | null,
+    total?: boolean,
+  ) => {
+    const collectionRef = collection(db, "posts");
+    let q;
 
-        if (type !== "all" && keyword) {
-          q = query(
-            collectionRef,
-            and(
-              where("type", "==", type),
-              or(
-                and(
-                  where("title", ">=", keyword),
-                  where("title", "<=", keyword + "\uf8ff"),
-                ),
-                and(
-                  where("post", ">=", keyword),
-                  where("post", "<=", keyword + "\uf8ff"),
-                ),
-              ),
-            ),
-          );
-        } else if (type !== "all") {
-          q = query(collectionRef, where("type", "==", type));
-        } else if (keyword) {
-          q = query(
-            collectionRef,
-            or(
-              and(
-                where("title", ">=", keyword),
-                where("title", "<=", keyword + "\uf8ff"),
-              ),
-              and(
-                where("post", ">=", keyword),
-                where("post", "<=", keyword + "\uf8ff"),
-              ),
-            ),
-          );
-        }
-
-        if (!q) {
-          //문서를 다운로드하기 전, 개수 count
-          snapshot = await getCountFromServer(collectionRef);
-        } else {
-          snapshot = await getCountFromServer(q);
-        }
-        const totalCount = snapshot.data().count;
-        setTotalPages(Math.ceil(totalCount / PAGE_SIZE));
-      } catch (error) {
-        console.error();
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTotalCount();
-  }, [keyword, type]);
-
-  const fetchPosts = async (page: number) => {
-    setIsLoading(true);
-    let postsQuery;
-
-    if (page === 1) {
-      if (type !== "all") {
-        if (keyword) {
-          postsQuery = query(
-            collection(db, "posts"),
-            and(
-              where("type", "==", type),
-              or(
-                and(
-                  where("title", ">=", keyword),
-                  where("title", "<=", keyword + "\uf8ff"),
-                ),
-                and(
-                  where("post", ">=", keyword),
-                  where("post", "<=", keyword + "\uf8ff"),
-                ),
-              ),
-            ),
-            orderBy("createAt", "desc"),
-            limit(PAGE_SIZE),
-          );
-        } else {
-          postsQuery = query(
-            collection(db, "posts"),
-            where("type", "==", type),
-            orderBy("createAt", "desc"),
-            limit(PAGE_SIZE),
-          );
-        }
-      } else {
-        if (keyword) {
-          postsQuery = query(
-            collection(db, "posts"),
-            or(
-              and(
-                where("title", ">=", keyword),
-                where("title", "<=", keyword + "\uf8ff"),
-              ),
-              and(
-                where("post", ">=", keyword),
-                where("post", "<=", keyword + "\uf8ff"),
-              ),
-            ),
-            orderBy("createAt", "desc"),
-            limit(PAGE_SIZE),
-          );
-        } else {
-          postsQuery = query(
-            collection(db, "posts"),
-            orderBy("createAt", "desc"),
-            limit(PAGE_SIZE),
-          );
-        }
-      }
-    } else {
-      const lastDoc = await getLastVisible(page - 1);
-      if (!lastDoc) return;
-      if (type !== "all") {
-        postsQuery = query(
-          collection(db, "posts"),
+    if (type !== "all" && keyword) {
+      q = query(
+        collectionRef,
+        and(
           where("type", "==", type),
-          orderBy("createAt", "desc"),
-          startAfter(lastDoc),
-          limit(PAGE_SIZE),
-        );
-      } else {
-        postsQuery = query(
-          collection(db, "posts"),
-          orderBy("createAt", "desc"),
-          startAfter(lastDoc),
-          limit(PAGE_SIZE),
-        );
-      }
+          or(
+            and(
+              where("title", ">=", keyword),
+              where("title", "<=", keyword + "\uf8ff"),
+            ),
+            and(
+              where("post", ">=", keyword),
+              where("post", "<=", keyword + "\uf8ff"),
+            ),
+          ),
+        ),
+        orderBy("createAt", "desc"),
+        ...(page > 1 ? [startAfter(lastDoc)] : []),
+        ...(total ? [] : [limit(PAGE_SIZE)]),
+      );
+    } else if (type !== "all") {
+      q = query(
+        collectionRef,
+        where("type", "==", type),
+        orderBy("createAt", "desc"),
+        ...(page > 1 ? [startAfter(lastDoc)] : []),
+        ...(total ? [] : [limit(PAGE_SIZE)]),
+      );
+    } else if (keyword) {
+      q = query(
+        collectionRef,
+        or(
+          and(
+            where("title", ">=", keyword),
+            where("title", "<=", keyword + "\uf8ff"),
+          ),
+          and(
+            where("post", ">=", keyword),
+            where("post", "<=", keyword + "\uf8ff"),
+          ),
+        ),
+        orderBy("createAt", "desc"),
+        ...(page > 1 ? [startAfter(lastDoc)] : []),
+        ...(total ? [] : [limit(PAGE_SIZE)]),
+      );
+    } else {
+      q = query(
+        collectionRef,
+        orderBy("createAt", "desc"),
+        ...(page > 1 ? [startAfter(lastDoc)] : []),
+        ...(total ? [] : [limit(PAGE_SIZE)]),
+      );
     }
 
-    const unsubscribe: Unsubscribe = onSnapshot(postsQuery, (snapshot) => {
-      const postsData = snapshot.docs
-        .map((doc) => {
-          const { title, post, createAt, userId, username, photo, type } =
-            doc.data();
-          return {
-            title,
-            post,
-            createAt,
-            userId,
-            username,
-            photo,
-            type,
-            id: doc.id,
-          };
-        })
-        .filter((doc) => {
-          if (type === "all") return true;
-          return doc.type === type;
-        });
-
-      setPosts(postsData);
-      // setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
-      setIsLoading(false);
-    });
-
-    return () => unsubscribe();
+    return q;
   };
+
+  const fetchTotalCount = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const collectionRef = collection(db, "posts");
+      const q = buildQuery(1, null, true);
+      const snapshot = await getCountFromServer(q || collectionRef);
+      const totalCount = snapshot.data().count;
+      setTotalPages(Math.ceil(totalCount / PAGE_SIZE));
+    } catch (error) {
+      console.error();
+    } finally {
+      setIsLoading(false);
+    }
+  }, [keyword, type]);
+
+  const fetchPosts = useCallback(
+    async (page: number) => {
+      setIsLoading(true);
+      try {
+        const lastDoc = page > 1 ? await getLastVisible(page - 1) : null;
+        const postsQuery = buildQuery(page, lastDoc);
+        const snapshot = await getDocs(postsQuery);
+        const postsData = snapshot.docs
+          .map((doc) => {
+            const { title, post, createAt, userId, username, photo, type } =
+              doc.data();
+            return {
+              title,
+              post,
+              createAt,
+              userId,
+              username,
+              photo,
+              type,
+              id: doc.id,
+            };
+          })
+          .filter((doc) => {
+            if (type === "all") return true;
+            return doc.type === type;
+          });
+
+        setPosts(postsData);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching posts: ", error);
+        setIsLoading(false);
+      }
+    },
+    [type, keyword],
+  );
+
+  useEffect(() => {
+    fetchTotalCount();
+  }, [fetchTotalCount]);
 
   useEffect(() => {
     fetchPosts(page);
-  }, [page, type, keyword]);
+  }, [page, fetchPosts]);
 
   const getLastVisible = async (page: number) => {
     const postsQuery = query(

@@ -16,7 +16,7 @@ const Board = () => {
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setType(e.target.value as IPost["type"]);
   };
-  const searchPosts = (e?: React.FormEvent) => {
+  const searchPosts = (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault();
     if (!searchValue.trim()) {
       alert("내용을 입력해주세요!");
@@ -32,7 +32,7 @@ const Board = () => {
       <Contents>
         <Top>
           <Types>
-            <Type isactive={type === "all" ? "true" : "false"}>
+            <Type $isActive={type === "all" ? "true" : "false"}>
               <input
                 type="radio"
                 name="type"
@@ -42,7 +42,7 @@ const Board = () => {
               />
               전체
             </Type>
-            <Type isactive={type === "shelter" ? "true" : "false"}>
+            <Type $isActive={type === "shelter" ? "true" : "false"}>
               <input
                 type="radio"
                 name="type"
@@ -52,7 +52,7 @@ const Board = () => {
               />
               보호센터
             </Type>
-            <Type isactive={type === "personal" ? "true" : "false"}>
+            <Type $isActive={type === "personal" ? "true" : "false"}>
               <input
                 type="radio"
                 name="type"
@@ -139,16 +139,16 @@ const Types = styled.div`
   overflow: hidden;
 `;
 
-const Type = styled.label<{ isactive: string }>`
+const Type = styled.label<{ $isActive: string }>`
   display: flex;
   justify-content: center;
   align-items: center;
   width: 80px;
   height: 100%;
-  background-color: ${({ isactive }) =>
-    isactive === "true" ? "var(--primary-color)" : "#fff"};
+  background-color: ${(props) =>
+    props.$isActive === "true" ? "var(--primary-color)" : "#fff"};
   font-size: 1rem;
-  color: ${({ isactive }) => (isactive === "true" ? "#fff" : "#000")};
+  color: ${(props) => (props.$isActive === "true" ? "#fff" : "#000")};
   cursor: pointer;
 
   &:not(:last-child) {
