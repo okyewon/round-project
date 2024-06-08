@@ -8,10 +8,12 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { Unsubscribe, User, updateProfile } from "firebase/auth";
 import {
   collection,
+  doc,
   limit,
   onSnapshot,
   orderBy,
   query,
+  updateDoc,
 } from "firebase/firestore";
 import { MdOutlinePets } from "react-icons/md";
 import {
@@ -55,6 +57,9 @@ const Mypage = () => {
 
       setAvatar(imgURL);
       await updateProfile(user, {
+        photoURL: imgURL,
+      });
+      await updateDoc(doc(db, "users", user.uid), {
         photoURL: imgURL,
       });
     }
