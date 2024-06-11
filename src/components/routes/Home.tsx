@@ -8,6 +8,7 @@ import { useRecoilValue } from "recoil";
 import { shelterAtom } from "../store/shelterStore";
 import { ShelterType, useFetchShelters } from "../../api";
 import { useSetRecoilState } from "recoil";
+import Loading from "../common/Loading";
 
 const Home = () => {
   const name = auth.currentUser?.displayName;
@@ -51,20 +52,22 @@ const Home = () => {
         }
         return prevShelters;
       });
+
+      const orgData = newShelters.map((shelter) => {
+        return shelter.orgNm;
+      });
+      orgData.sort((a, b) => a.localeCompare(b));
+      setOptions(orgData);
     }
-  }, [data, status]);
+  }, [data, status, setShelters]);
 
   useEffect(() => {
     init();
-  }, []);
+  }, [init]);
 
-  useEffect(() => {
-    const orgData = shelters.map((shelter) => {
-      return shelter.orgNm;
-    });
-    orgData.sort((a, b) => a.localeCompare(b));
-    setOptions(orgData);
-  }, [shelters]);
+  if (options.length === 0) {
+    return <Loading />;
+  }
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

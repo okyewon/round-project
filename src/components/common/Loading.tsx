@@ -1,5 +1,13 @@
 import { styled } from "styled-components";
 
+const Loading = () => {
+  return (
+    <Wrapper>
+      <Text className="font-bold">Loading...</Text>
+    </Wrapper>
+  );
+};
+
 const Wrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -10,13 +18,5 @@ const Wrapper = styled.div`
 const Text = styled.span`
   font-size: 1.5rem;
 `;
-
-const Loading = () => {
-  return (
-    <Wrapper>
-      <Text className="font-bold">Loading...</Text>
-    </Wrapper>
-  );
-};
 
 export default Loading;
