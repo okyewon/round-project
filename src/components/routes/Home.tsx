@@ -55,7 +55,8 @@ const Home = () => {
         return shelter.orgNm;
       });
       orgData.sort((a, b) => a.localeCompare(b));
-      setOptions(orgData);
+      const setOrgData = new Set(orgData);
+      setOptions([...setOrgData]);
     }
   }, [data, status, setShelters]);
 
