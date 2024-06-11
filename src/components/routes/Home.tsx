@@ -4,7 +4,6 @@ import { MdGpsFixed } from "react-icons/md";
 import { IoSearch } from "react-icons/io5";
 import { useNavigate } from "react-router";
 import { FormEvent, useEffect, useState, useCallback } from "react";
-import { useRecoilValue } from "recoil";
 import { shelterAtom } from "../store/shelterStore";
 import { ShelterType, useFetchShelters } from "../../api";
 import { useSetRecoilState } from "recoil";
@@ -17,7 +16,6 @@ const Home = () => {
   const { data, status } = useFetchShelters();
   const [value, setValue] = useState("");
   const [options, setOptions] = useState<string[]>([]);
-  const shelters = useRecoilValue(shelterAtom);
 
   const init = useCallback(() => {
     if (status === "success" && data) {
