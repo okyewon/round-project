@@ -75,6 +75,9 @@ export const Button = styled.button`
 export const SelectButton = styled.button`
   padding: 0 20px;
   font-size: 1.4rem;
+  &:focus-visible {
+    outline: none;
+  }
 `;
 
 export const List = styled.ul`

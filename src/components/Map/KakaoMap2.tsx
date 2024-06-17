@@ -85,7 +85,7 @@ const KakaoMap2 = () => {
 
   useEffect(() => {
     init();
-  }, [init, map]);
+  }, []);
 
   useEffect(() => {
     if (map && region) {

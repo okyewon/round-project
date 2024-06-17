@@ -10,7 +10,7 @@ import {
   SearchWrap,
   Wrapper,
 } from "./KakaoMapStyle";
-import { ShelterType, Shelters } from "../../api";
+import { ShelterType } from "../../api";
 
 declare global {
   interface Window {
@@ -55,7 +55,7 @@ const KakaoMap = (): JSX.Element => {
     lat: number;
     lng: number;
   } | null>(null);
-  const shelterInfo = Shelters();
+  // const shelterInfo = Shelters();
 
   useEffect(() => {
     const container = document.getElementById("map");
@@ -86,40 +86,40 @@ const KakaoMap = (): JSX.Element => {
     setInfowindow(infowindowInstance);
   }, []);
 
-  useEffect(() => {
-    if (shelterInfo) {
-      const xmlString = shelterInfo.data;
+  // useEffect(() => {
+  //   if (shelterInfo) {
+  //     const xmlString = shelterInfo.data;
 
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlString, "application/xml");
+  //     const parser = new DOMParser();
+  //     const xmlDoc = parser.parseFromString(xmlString, "application/xml");
 
-      const items = xmlDoc.getElementsByTagName("item");
-      const newShelters: ShelterType[] = [];
-      for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-        const shelter = {
-          careNm: item.getElementsByTagName("careNm")[0].textContent,
-          divisionNm: item.getElementsByTagName("divisionNm")[0].textContent,
-          saveTrgtAnimal:
-            item.getElementsByTagName("saveTrgtAnimal")[0]?.textContent || null,
-          careAddr: item.getElementsByTagName("careAddr")[0].textContent,
-          lat: item.getElementsByTagName("lat")[0]?.textContent || null,
-          lng: item.getElementsByTagName("lng")[0]?.textContent || null,
-          closeDay:
-            item.getElementsByTagName("closeDay")[0]?.textContent || null,
-          careTel: item.getElementsByTagName("careTel")[0].textContent,
-        } as ShelterType;
-        newShelters.push(shelter);
-      }
+  //     const items = xmlDoc.getElementsByTagName("item");
+  //     const newShelters: ShelterType[] = [];
+  //     for (let i = 0; i < items.length; i++) {
+  //       const item = items[i];
+  //       const shelter = {
+  //         careNm: item.getElementsByTagName("careNm")[0].textContent,
+  //         divisionNm: item.getElementsByTagName("divisionNm")[0].textContent,
+  //         saveTrgtAnimal:
+  //           item.getElementsByTagName("saveTrgtAnimal")[0]?.textContent || null,
+  //         careAddr: item.getElementsByTagName("careAddr")[0].textContent,
+  //         lat: item.getElementsByTagName("lat")[0]?.textContent || null,
+  //         lng: item.getElementsByTagName("lng")[0]?.textContent || null,
+  //         closeDay:
+  //           item.getElementsByTagName("closeDay")[0]?.textContent || null,
+  //         careTel: item.getElementsByTagName("careTel")[0].textContent,
+  //       } as ShelterType;
+  //       newShelters.push(shelter);
+  //     }
 
-      setShelters((prevShelters) => {
-        if (JSON.stringify(prevShelters) !== JSON.stringify(newShelters)) {
-          return newShelters;
-        }
-        return prevShelters;
-      });
-    }
-  }, [shelterInfo]);
+  //     setShelters((prevShelters) => {
+  //       if (JSON.stringify(prevShelters) !== JSON.stringify(newShelters)) {
+  //         return newShelters;
+  //       }
+  //       return prevShelters;
+  //     });
+  //   }
+  // }, [shelterInfo]);
 
   useEffect(() => {
     if (!nearby && !keyword) {
