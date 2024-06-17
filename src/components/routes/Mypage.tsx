@@ -36,7 +36,8 @@ const Mypage = () => {
   const user = auth.currentUser;
   const [avatar, setAvatar] = useState(user?.photoURL);
   const [posts, setPosts] = useState<IPost[]>([]);
-  const [name, setName] = useState<string>(user?.displayName ?? "");
+  // const [name, setName] = useState<string>(user?.displayName ?? "");
+  const name = user?.displayName ?? "";
   const navigate = useNavigate();
   //todo: name 실시간 감지
 

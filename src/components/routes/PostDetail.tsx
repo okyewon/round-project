@@ -5,6 +5,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
   query,
   where,
 } from "firebase/firestore";
@@ -119,27 +120,34 @@ const PostDetail = () => {
     getBookmarks();
   }, [getAvatarImg, getBookmarks]);
 
-  const getComments = useCallback(async () => {
+  const getComments = useCallback(() => {
     try {
       const commentCollectionRef = collection(db, `posts/${postId}/comments`);
-      const commentSnap = await getDocs(commentCollectionRef);
-      const newComments = commentSnap.docs.map(
-        (doc) => doc.data() as CommentType,
-      );
-      const commentsChanged =
-        JSON.stringify(comments) !== JSON.stringify(newComments);
+      const unsubscribe = onSnapshot(commentCollectionRef, (snapshot) => {
+        const newComments = snapshot.docs.map(
+          (doc) => doc.data() as CommentType,
+        );
+        const commentsChanged =
+          JSON.stringify(comments) !== JSON.stringify(newComments);
+        if (commentsChanged) {
+          setComments(newComments);
+          setTotal(snapshot.docs.length);
+        }
+      });
 
-      if (commentsChanged) {
-        setComments(newComments);
-        setTotal(commentSnap.docs.length);
-      }
+      return unsubscribe;
     } catch (error) {
       console.log(error);
     }
   }, [postId, comments]);
 
   useEffect(() => {
-    getComments();
+    const unsubscribe = getComments();
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [getComments]);
 
   if (!postData) {

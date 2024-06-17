@@ -11,12 +11,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import {
-  StorageReference,
-  deleteObject,
-  getDownloadURL,
-  ref,
-} from "firebase/storage";
+import { deleteObject, ref } from "firebase/storage";
 import { RiEditLine } from "react-icons/ri";
 import { useEffect, useRef, useState } from "react";
 import { IPost } from "./Posts";
@@ -26,7 +21,6 @@ import { MdOutlinePets } from "react-icons/md";
 import { Img } from "../common/Mypage-components";
 import { IoIosMore } from "react-icons/io";
 import { FaRegBookmark } from "react-icons/fa";
-import { FirebaseError } from "firebase/app";
 import { Link } from "react-router-dom";
 import {
   Avatar,
