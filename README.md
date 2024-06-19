@@ -18,6 +18,10 @@ https://round-project-ad129.web.app/
   - 카카오맵 api : https://apis.map.kakao.com/web/guide/
   - 동물보호센터 api : https://www.data.go.kr/data/15025454/standard.do?recommendDataYn=Y
 
+## 기획 및 진행 과정 + 트러블 슈팅(노션)
+
+https://www.notion.so/ogi-front-end/round-project-acec7378b4df47099a240c8a2a3e0327
+
 ## 페이지 별 주요 기능
 
 ### Login / createAccount
