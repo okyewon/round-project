@@ -39,12 +39,16 @@ https://www.notion.so/ogi-front-end/round-project-acec7378b4df47099a240c8a2a3e03
 | ![image.jpg1](https://github.com/okyewon/round-project/assets/141378574/9f3d90b3-b6eb-4f2c-9a8b-c46f8ec4f01b) | ![image.jpg2](https://github.com/okyewon/round-project/assets/141378574/b01a85b6-7037-4e20-8c50-3b416747d4b3) | ![image.jpg3](https://github.com/okyewon/round-project/assets/141378574/f3d51860-b7d5-4781-90d6-85d2b3f57fc2) |
 | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 
+&nbsp;
+
 ### Home
 
 - 동물보호센터 api로 필터링 된 지역구 중에서 관심 지역 검색
 - 지도 페이지로 지역 키워드 전달
 
 <img width="100%" src="https://github.com/okyewon/round-project/assets/141378574/2d0585a2-81ce-49b9-beec-b71614147493">
+
+&nbsp;
 
 ### Map
 
@@ -55,6 +59,8 @@ https://www.notion.so/ogi-front-end/round-project-acec7378b4df47099a240c8a2a3e03
   - 해당 지역 내의 보호소가 다 보이도록 위치 이동 && 범위 설정
 
 <img width="100%" src="https://github.com/okyewon/round-project/assets/141378574/957fa8cf-51cb-4792-9f15-6a59ba0c668c">
+
+&nbsp;
 
 ### Board
 
@@ -69,11 +75,15 @@ https://www.notion.so/ogi-front-end/round-project-acec7378b4df47099a240c8a2a3e03
 
 <img width="100%" src="https://github.com/okyewon/round-project/assets/141378574/cfa09892-8b8d-44aa-910d-8561e51bb110">
 
+&nbsp;
+
 ### PostWrite
 
 - 글쓰기 페이지
 - 제목+내용 필수 작성
 - 사진 업로드 선택
+
+&nbsp;
 
 ### PostDetail
 
@@ -82,6 +92,8 @@ https://www.notion.so/ogi-front-end/round-project-acec7378b4df47099a240c8a2a3e03
 - 댓글 기능
 
 <img width="100%" src="https://github.com/okyewon/round-project/assets/141378574/375a146c-d82a-4b8c-9186-9e24dbc393d2">
+
+&nbsp;
 
 ### Mypage
 
