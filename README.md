@@ -5,18 +5,18 @@
 https://round-project-ad129.web.app/
 
 - 동물보호센터에 자원봉사를 희망하는 사람들을 위한 애플리케이션입니다.
-- '동글동글'은 지역구마다 동물보호센터 api에 등록된 동물보호센터를 지도로 확인할 수 있고, 게시판을 통해 동물보호센터/개인 간의 소통이 가능합니다.
-- 반려동물과 함께하는 사람들, 동물을 사랑하는 사람들 중에 동물보호소 자원봉사에 관심 있으신 분들이 많습니다.
-- 하지만, 접근법을 몰라서 혹은 정보가 부족해서 선뜻 나서지 않는 분들이 대부분이라는 점을 착안해서 만들게 되었습니다.
+- '동글동글'은 동물보호센터 api에 등록된 동물보호센터를 지역구별로 지도로 확인할 수 있습니다.
+- 게시판을 통해 동물보호센터/개인 간의 소통이 가능합니다.
+- 동물보호소 자원봉사에 관심 있으신 분들 중, 정보가 부족해서 선뜻 참여하지 않는다는 점을 착안해서 만들게 되었습니다.
 
-## React + TypeScript + Vite
+## 프로젝트 구성
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React + TypeScript + Vite 기반
+- Tailwind CSS, Styled Component
+- React Query, Recoil
+- 외부 api
+  - 카카오맵 api : https://apis.map.kakao.com/web/guide/
+  - 동물보호센터 api : https://www.data.go.kr/data/15025454/standard.do?recommendDataYn=Y
 
 ## 페이지 별 주요 기능
 
