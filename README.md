@@ -1,6 +1,6 @@
 # Round project(동글동글)
 
-### 배포 URL
+### ✅ 배포 URL
 
 https://round-project-ad129.web.app/
 
@@ -9,7 +9,7 @@ https://round-project-ad129.web.app/
 - 게시판을 통해 동물보호센터/개인 간의 소통이 가능합니다.
 - 동물보호소 자원봉사에 관심 있으신 분들 중, 정보가 부족해서 선뜻 참여하지 않는다는 점을 착안해서 만들게 되었습니다.
 
-## 프로젝트 구성
+## 🧐 프로젝트 구성
 
 - React + TypeScript + Vite 기반
 - Tailwind CSS, Styled Component
@@ -18,11 +18,11 @@ https://round-project-ad129.web.app/
   - 카카오맵 api : https://apis.map.kakao.com/web/guide/
   - 동물보호센터 api : https://www.data.go.kr/data/15025454/standard.do?recommendDataYn=Y
 
-## 기획 및 진행 과정 + 트러블 슈팅(노션)
+## 🏄‍♀️ 기획 및 진행 과정 + 트러블 슈팅(노션)
 
 https://www.notion.so/ogi-front-end/round-project-acec7378b4df47099a240c8a2a3e0327
 
-## 페이지 별 주요 기능
+## ⚓ 페이지 별 주요 기능
 
 ### Login / createAccount
 
