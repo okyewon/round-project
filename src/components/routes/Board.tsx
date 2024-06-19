@@ -28,7 +28,6 @@ const Board = () => {
 
   return (
     <Wrapper className="container">
-      {/* <Filter></Filter> */}
       <Contents>
         <Top>
           <Types>
@@ -90,23 +89,12 @@ const Board = () => {
 };
 
 const Wrapper = styled.div`
-  /* display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 10px; */
   max-width: 900px;
   margin: 0 auto;
   padding: 120px 0;
 `;
 
-// const Filter = styled.div`
-//   padding: 0.5rem;
-//   background-color: #fff;
-//   border-radius: 10px;
-//   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
-// `;
-
 const Contents = styled.div`
-  /* grid-column: span 3; */
   display: flex;
   flex-direction: column;
   gap: 10px;

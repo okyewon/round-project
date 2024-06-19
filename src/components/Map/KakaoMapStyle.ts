@@ -70,6 +70,9 @@ export const Button = styled.button`
   height: 100%;
   vertical-align: middle;
   font-size: 1.4rem;
+  &:focus {
+    outline: none;
+  }
 `;
 
 export const SelectButton = styled.button`
