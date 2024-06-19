@@ -22,18 +22,13 @@ declare global {
 
 interface LocationState {
   region?: string;
-  nearby?: boolean;
 }
 
 const KakaoMap = () => {
   const location = useLocation();
   const state = (location.state as LocationState) ?? {}; // 기본값 설정
-  const { region = "", nearby = false } = state;
+  const { region = "" } = state;
   const [displayMap, setDisplayMap] = useState<kakao.maps.Map | null>(null);
-  const [currentLocation, setCurrentLocation] = useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
   const [infowindow, setInfowindow] = useState<kakao.maps.InfoWindow | null>(
     null,
   );
@@ -49,31 +44,19 @@ const KakaoMap = () => {
       center: new kakao.maps.LatLng(33.450701, 126.570667),
       level: 3,
     };
-    let mapInstance: kakao.maps.Map;
+
     if (container) {
-      mapInstance = new kakao.maps.Map(container, options);
+      const mapInstance = new kakao.maps.Map(container, options);
 
-      if (nearby && navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          setCurrentLocation({ lat, lng });
-
-          const locPosition = new kakao.maps.LatLng(lat, lng);
-          mapInstance.setCenter(locPosition);
-          searchNearby({ lat, lng });
-        });
-      } else {
-        const defaultPosition = new kakao.maps.LatLng(33.450701, 126.570667);
-        mapInstance.setCenter(defaultPosition);
-      }
+      const defaultPosition = new kakao.maps.LatLng(33.450701, 126.570667);
+      mapInstance.setCenter(defaultPosition);
 
       setDisplayMap(mapInstance);
     }
 
     const infowindowInstance = new kakao.maps.InfoWindow({ zIndex: 1 });
     setInfowindow(infowindowInstance);
-  }, [displayMap, nearby]);
+  }, [displayMap]);
 
   useEffect(() => {
     init();
@@ -103,63 +86,6 @@ const KakaoMap = () => {
       }
     }
   }, [displayMap, region, shelters, infowindow]);
-
-  const calculateDistance = (
-    lat1: number,
-    lng1: number,
-    lat2: number,
-    lng2: number,
-  ) => {
-    const R = 6371; // 지구의 반경(km)
-    const dLat = (lat2 - lat1) * (Math.PI / 180);
-    const dLng = (lng2 - lng1) * (Math.PI / 180);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * (Math.PI / 180)) *
-        Math.cos(lat2 * (Math.PI / 180)) *
-        Math.sin(dLng / 2) *
-        Math.sin(dLng / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // 거리(km)
-  };
-
-  const searchNearby = async (location: { lat: number; lng: number }) => {
-    const { lat, lng } = location;
-    const radius = 10; // 반경 10km
-
-    const nearbyShelters: ShelterType[] = [];
-    const geocoder = new kakao.maps.services.Geocoder();
-
-    for (const shelter of shelters) {
-      const result = await new Promise<kakao.maps.services.GeocoderResult[]>(
-        (resolve) => {
-          geocoder.addressSearch(shelter.careAddr, (result, status) => {
-            if (status === kakao.maps.services.Status.OK) {
-              resolve(result);
-            } else {
-              resolve([]);
-            }
-          });
-        },
-      );
-
-      if (result.length > 0) {
-        const distance = calculateDistance(
-          lat,
-          lng,
-          parseFloat(result[0].y),
-          parseFloat(result[0].x),
-        );
-
-        if (distance <= radius) {
-          nearbyShelters.push(shelter);
-        }
-      }
-    }
-
-    const bounds = new kakao.maps.LatLngBounds();
-    displayPlaces(nearbyShelters, bounds);
-  };
 
   const searchPlaces = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

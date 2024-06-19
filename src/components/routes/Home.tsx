@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import { auth } from "../../firebase";
-import { MdGpsFixed } from "react-icons/md";
 import { IoSearch } from "react-icons/io5";
 import { useNavigate } from "react-router";
 import { FormEvent, useEffect, useState, useCallback } from "react";
@@ -73,10 +72,6 @@ const Home = () => {
     navigate("/map", { state: { region: value } });
   };
 
-  const handleNearbySearch = () => {
-    navigate("/map", { state: { nearby: true } });
-  };
-
   const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setValue(e.target.value);
   };
@@ -100,9 +95,6 @@ const Home = () => {
           <IoSearch />
         </Button>
       </Form>
-      <Around className="search" onClick={handleNearbySearch}>
-        <MdGpsFixed />내 주변 검색
-      </Around>
     </Wrapper>
   );
 };
@@ -154,17 +146,6 @@ const Select = styled.select`
 const Button = styled.button`
   padding: 0 20px;
   font-size: 1.5rem;
-`;
-
-const Around = styled.button`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  background-color: var(--primary-color);
-  font-size: 1.5rem;
-  color: #fff;
-  box-shadow: inset 0 0 1rem rgba(11, 0, 128, 0.3);
 `;
 
 export default Home;
