@@ -59,7 +59,7 @@ https://www.notion.so/ogi-front-end/round-project-acec7378b4df47099a240c8a2a3e03
   - 수정하기/삭제하기
 - 작성자와 현재 user가 일치하지 않을 때
   - 북마크 기능
-- 숫자 페이지네이션 기능
+- 페이지네이션 기능
 
 <img width="100%" src="https://github.com/okyewon/round-project/assets/141378574/cfa09892-8b8d-44aa-910d-8561e51bb110">
 
@@ -79,7 +79,10 @@ https://www.notion.so/ogi-front-end/round-project-acec7378b4df47099a240c8a2a3e03
 
 ### Mypage
 
-- 좌측: 프로필 정보 && 마이페이지 네비게이션
+- 좌측: 고정 사이드 바
+  - 프로필 정보
+  - 마이페이지 네비게이션
+  - 로그아웃
 - 우측: 하위 컴포넌트들 렌더링
   - 북마크 컬렉션
   - 내가 쓴 게시물 컬렉션
