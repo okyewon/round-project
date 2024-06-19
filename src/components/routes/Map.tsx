@@ -1,8 +1,8 @@
 // import KakaoMap from "../Map/KakaoMap";
-import KakaoMap2 from "../Map/KakaoMap2";
+import KakaoMap from "../Map/KakaoMap";
 
 const Map = (): JSX.Element => {
-  return <KakaoMap2 />;
+  return <KakaoMap />;
 };
 
 export default Map;

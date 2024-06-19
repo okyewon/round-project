@@ -1,15 +1,17 @@
-import { useLocation } from "react-router";
-import { useEffect, useState } from "react";
 import { IoSearch } from "react-icons/io5";
 import {
-  Button,
-  Form,
-  Input,
+  SelectButton,
+  SelectForm,
   List,
   Pagination,
   SearchWrap,
+  Select,
   Wrapper,
 } from "./KakaoMapStyle";
+import { FormEvent, useCallback, useEffect, useState } from "react";
+import { useLocation } from "react-router";
+import { useRecoilValue } from "recoil";
+import { shelterAtom } from "../store/shelterStore";
 import { ShelterType } from "../../api";
 
 declare global {
@@ -18,120 +20,89 @@ declare global {
   }
 }
 
-interface PlaceType {
-  address_name: string;
-  category_group_code: string;
-  category_group_name: string;
-  category_name: string;
-  distance: string;
-  id: string;
-  phone: string;
-  place_name: string;
-  place_url: string;
-  road_address_name: string;
-  x: string;
-  y: string;
-}
-
 interface LocationState {
-  keyword?: string;
+  region?: string;
   nearby?: boolean;
 }
 
-const { kakao } = window;
-
-const KakaoMap = (): JSX.Element => {
+const KakaoMap = () => {
   const location = useLocation();
   const state = (location.state as LocationState) ?? {}; // 기본값 설정
-  const { keyword = "", nearby = false } = state;
-  const [map, setMap] = useState<any>(null);
-  const [searchValue, setSearchValue] = useState(keyword);
-  const [markers, setMarkers] = useState<kakao.maps.Marker[]>([]);
-  const [infowindow, setInfowindow] = useState<kakao.maps.InfoWindow | null>(
-    null,
-  );
-  const [shelters, setShelters] = useState<ShelterType[]>([]);
+  const { region = "", nearby = false } = state;
+  const [displayMap, setDisplayMap] = useState<kakao.maps.Map | null>(null);
   const [currentLocation, setCurrentLocation] = useState<{
     lat: number;
     lng: number;
   } | null>(null);
-  // const shelterInfo = Shelters();
+  const [infowindow, setInfowindow] = useState<kakao.maps.InfoWindow | null>(
+    null,
+  );
+  const [value, setValue] = useState("");
+  const shelters = useRecoilValue(shelterAtom);
+  const [options, setOptions] = useState<string[]>([]);
+  const [markers, setMarkers] = useState<kakao.maps.Marker[]>([]);
 
-  useEffect(() => {
+  const init = useCallback(() => {
+    if (displayMap) return;
     const container = document.getElementById("map");
     const options = {
       center: new kakao.maps.LatLng(33.450701, 126.570667),
       level: 3,
     };
+    let mapInstance: kakao.maps.Map;
+    if (container) {
+      mapInstance = new kakao.maps.Map(container, options);
 
-    const mapInstance = new kakao.maps.Map(container, options);
+      if (nearby && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          setCurrentLocation({ lat, lng });
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        setCurrentLocation({ lat, lng });
+          const locPosition = new kakao.maps.LatLng(lat, lng);
+          mapInstance.setCenter(locPosition);
+          searchNearby({ lat, lng });
+        });
+      } else {
+        const defaultPosition = new kakao.maps.LatLng(33.450701, 126.570667);
+        mapInstance.setCenter(defaultPosition);
+      }
 
-        const locPosition = new kakao.maps.LatLng(lat, lng);
-        mapInstance.setCenter(locPosition);
-      });
-    } else {
-      alert("현재 위치를 찾을 수 없습니다.");
-      const defaultPosition = new kakao.maps.LatLng(33.450701, 126.570667);
-      mapInstance.setCenter(defaultPosition);
+      setDisplayMap(mapInstance);
     }
-    setMap(mapInstance);
 
     const infowindowInstance = new kakao.maps.InfoWindow({ zIndex: 1 });
     setInfowindow(infowindowInstance);
-  }, []);
-
-  // useEffect(() => {
-  //   if (shelterInfo) {
-  //     const xmlString = shelterInfo.data;
-
-  //     const parser = new DOMParser();
-  //     const xmlDoc = parser.parseFromString(xmlString, "application/xml");
-
-  //     const items = xmlDoc.getElementsByTagName("item");
-  //     const newShelters: ShelterType[] = [];
-  //     for (let i = 0; i < items.length; i++) {
-  //       const item = items[i];
-  //       const shelter = {
-  //         careNm: item.getElementsByTagName("careNm")[0].textContent,
-  //         divisionNm: item.getElementsByTagName("divisionNm")[0].textContent,
-  //         saveTrgtAnimal:
-  //           item.getElementsByTagName("saveTrgtAnimal")[0]?.textContent || null,
-  //         careAddr: item.getElementsByTagName("careAddr")[0].textContent,
-  //         lat: item.getElementsByTagName("lat")[0]?.textContent || null,
-  //         lng: item.getElementsByTagName("lng")[0]?.textContent || null,
-  //         closeDay:
-  //           item.getElementsByTagName("closeDay")[0]?.textContent || null,
-  //         careTel: item.getElementsByTagName("careTel")[0].textContent,
-  //       } as ShelterType;
-  //       newShelters.push(shelter);
-  //     }
-
-  //     setShelters((prevShelters) => {
-  //       if (JSON.stringify(prevShelters) !== JSON.stringify(newShelters)) {
-  //         return newShelters;
-  //       }
-  //       return prevShelters;
-  //     });
-  //   }
-  // }, [shelterInfo]);
+  }, [displayMap, nearby]);
 
   useEffect(() => {
-    if (!nearby && !keyword) {
-      return;
+    init();
+  }, [init]);
+
+  useEffect(() => {
+    const orgData = shelters.map((shelter) => {
+      return shelter.orgNm;
+    });
+    orgData.sort((a, b) => a.localeCompare(b));
+    const setOrgData = new Set(orgData);
+    setOptions([...setOrgData]);
+  }, [shelters]);
+
+  useEffect(() => {
+    if (displayMap && region) {
+      const filteredShelters = shelters.filter(
+        (shelter) => shelter.orgNm === region,
+      );
+
+      const bounds = new kakao.maps.LatLngBounds();
+
+      displayPlaces(filteredShelters, bounds);
+
+      if (filteredShelters.length > 0) {
+        displayMap.setBounds(bounds);
+      }
     }
-    if (nearby) {
-      searchNearby();
-    }
-    if (keyword) {
-      searchPlaces();
-    }
-  }, [nearby, keyword]);
+  }, [displayMap, region, shelters, infowindow]);
 
   const calculateDistance = (
     lat1: number,
@@ -152,109 +123,101 @@ const KakaoMap = (): JSX.Element => {
     return R * c; // 거리(km)
   };
 
-  const searchNearby = () => {
-    if (currentLocation) {
-      const { lat, lng } = currentLocation;
-      const radius = 5; // 반경 5km
+  const searchNearby = async (location: { lat: number; lng: number }) => {
+    const { lat, lng } = location;
+    const radius = 10; // 반경 10km
 
-      const nearbyShelters = shelters.filter((shelter) => {
-        if (shelter.lat && shelter.lng) {
-          const distance = calculateDistance(
-            lat,
-            lng,
-            parseFloat(shelter.lat),
-            parseFloat(shelter.lng),
-          );
-          return distance <= radius;
-        }
-        return false;
-      });
+    const nearbyShelters: ShelterType[] = [];
+    const geocoder = new kakao.maps.services.Geocoder();
 
-      displayPlaces(nearbyShelters);
-    } else {
-      alert("현재 위치를 찾을 수 없습니다.");
-    }
-  };
-
-  const searchPlaces = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!searchValue.trim()) {
-      alert("키워드를 입력해주세요!");
-      return;
-    } else {
-      const filteredShelters = shelters.filter((shelter) => {
-        const shelterAddr = shelter.careAddr.trim();
-        shelterAddr.includes(searchValue.trim());
-      });
-      setShelters(filteredShelters);
-      const ps = new kakao.maps.services.Places();
-      ps.keywordSearch(searchValue, placesSearchCB);
-    }
-  };
-
-  const placesSearchCB = (
-    data: PlaceType[] | ShelterType[],
-    status: "OK" | "ZERO_RESULT" | "ERROR",
-    pagination: any,
-  ) => {
-    if (status === kakao.maps.services.Status.OK && shelters) {
-      console.log(data);
-      displayPlaces(shelters);
-
-      const filteredPagination = {
-        ...pagination,
-        last: Math.ceil(shelters.length / pagination.perPage),
-        gotoPage: (page: number) => {
-          const startIdx = (page - 1) * pagination.perPage;
-          const endIdx = startIdx + pagination.perPage;
-          displayPlaces(shelters.slice(startIdx, endIdx));
-          displayPagination({ ...pagination, current: page });
+    for (const shelter of shelters) {
+      const result = await new Promise<kakao.maps.services.GeocoderResult[]>(
+        (resolve) => {
+          geocoder.addressSearch(shelter.careAddr, (result, status) => {
+            if (status === kakao.maps.services.Status.OK) {
+              resolve(result);
+            } else {
+              resolve([]);
+            }
+          });
         },
-      };
+      );
 
-      displayPagination(filteredPagination);
-    } else if (status === kakao.maps.services.Status.ZERO_RESULT || !shelters) {
-      alert("검색 결과가 존재하지 않습니다.");
-    } else if (status === kakao.maps.services.Status.ERROR) {
-      alert("검색 중 오류가 발생했습니다.");
+      if (result.length > 0) {
+        const distance = calculateDistance(
+          lat,
+          lng,
+          parseFloat(result[0].y),
+          parseFloat(result[0].x),
+        );
+
+        if (distance <= radius) {
+          nearbyShelters.push(shelter);
+        }
+      }
+    }
+
+    const bounds = new kakao.maps.LatLngBounds();
+    displayPlaces(nearbyShelters, bounds);
+  };
+
+  const searchPlaces = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const filteredShelters = shelters.filter(
+      (shelter) => shelter.orgNm === value,
+    );
+
+    if (filteredShelters.length > 0) {
+      const bounds = new kakao.maps.LatLngBounds();
+      displayPlaces(filteredShelters, bounds);
+      displayMap?.setBounds(bounds);
     }
   };
 
-  const displayPlaces = (places: PlaceType[] | ShelterType[]) => {
+  const displayPlaces = (
+    places: ShelterType[],
+    bounds: kakao.maps.LatLngBounds,
+  ) => {
     const listEl = document.getElementById("placesList");
-    const bounds = new kakao.maps.LatLngBounds();
     const newMarkers: kakao.maps.Marker[] = [];
 
-    removeAllChildNods(listEl);
+    removeAllChildNodes(listEl);
     removeMarker();
 
-    places.forEach((place: PlaceType | ShelterType, i: number) => {
-      let placePosition;
-      if ("place_name" in place) {
-        placePosition = new kakao.maps.LatLng(place.y, place.x);
-      } else if ("careNm" in place) {
-        placePosition = new kakao.maps.LatLng(place.lat, place.lng);
-      }
-      const marker = addMarker(placePosition, i);
-      const itemEl = getListItem(i, place);
+    let remainingPlaces = places.length;
 
-      bounds.extend(placePosition);
+    places.forEach((place: ShelterType, i: number) => {
+      const geocoder = new kakao.maps.services.Geocoder();
+      geocoder.addressSearch(place.careAddr, function (result, status) {
+        if (status === kakao.maps.services.Status.OK) {
+          const coords = new kakao.maps.LatLng(+result[0].y, +result[0].x);
 
-      (function (marker, place) {
-        kakao.maps.event.addListener(marker, "click", function () {
-          displayInfowindow(marker, place);
-        });
-        itemEl.onclick = function () {
-          displayInfowindow(marker, place);
-        };
-      })(marker, place);
+          const addedMarker = addMarker(coords, i);
+          const itemEl = getListItem(i, place);
+          (function (addedMarker, place) {
+            kakao.maps.event.addListener(addedMarker, "click", function () {
+              displayInfowindow(addedMarker, place);
+            });
+            itemEl.onclick = function () {
+              displayInfowindow(addedMarker, place);
+            };
+          })(addedMarker, place);
 
-      newMarkers.push(marker);
-      listEl?.appendChild(itemEl);
+          newMarkers.push(addedMarker);
+          listEl?.appendChild(itemEl);
+
+          bounds.extend(coords);
+        }
+
+        remainingPlaces -= 1;
+
+        // 모든 마커들이 추가되고 지도 경계를 업데이트
+        if (remainingPlaces === 0) {
+          setMarkers(newMarkers);
+          displayMap?.setBounds(bounds);
+        }
+      });
     });
-
-    map.setBounds(bounds);
-    setMarkers(newMarkers);
   };
 
   const addMarker = (position: kakao.maps.LatLng, idx: number) => {
@@ -276,7 +239,7 @@ const KakaoMap = (): JSX.Element => {
       image: markerImage,
     });
 
-    marker.setMap(map);
+    marker.setMap(displayMap);
     return marker;
   };
 
@@ -285,26 +248,14 @@ const KakaoMap = (): JSX.Element => {
     setMarkers([]);
   };
 
-  const getListItem = (index: number, place: PlaceType | ShelterType) => {
-    let place_name;
-    let place_addr;
-    let place_tel;
-    if ("place_name" in place) {
-      place_name = place.place_name;
-      place_addr = place.address_name ?? place.road_address_name;
-      place_tel = place.phone;
-    } else if ("careNm" in place) {
-      place_name = place.careNm;
-      place_addr = place.careAddr;
-      place_tel = place.careTel;
-    }
+  const getListItem = (index: number, place: ShelterType) => {
     const el = document.createElement("li");
     const itemStr = `
       <span class="markerbg marker_${index + 1}"></span>
       <div class="info">
-        <h5 class="text-lg font-bold">${place_name}</h5>
-        <span>${place_addr}</span>
-        <span class="tel">${place_tel}</span>
+        <h5 class="text-lg font-bold">${place.careNm}</h5>
+        <span>${place.careAddr}</span>
+        <span class="tel">${place.careTel}</span>
       </div>
     `;
 
@@ -313,27 +264,15 @@ const KakaoMap = (): JSX.Element => {
     return el;
   };
 
-  const displayInfowindow = (
-    marker: kakao.maps.Marker,
-    place: PlaceType | ShelterType,
-  ) => {
-    let place_name;
-    let place_tel;
-    if ("place_name" in place) {
-      place_name = place.place_name;
-      place_tel = place.phone;
-    } else if ("careNm" in place) {
-      place_name = place.careNm;
-      place_tel = place.careTel;
-    }
-    if (infowindow) {
+  const displayInfowindow = (marker: kakao.maps.Marker, place: ShelterType) => {
+    if (displayMap && infowindow) {
       infowindow.setContent(
-        `<div style="display:flex;flex-direction:column;gap:5px;padding:5px;z-index:1;">
-        <p>${place_name}</p>
-        <p>${place_tel}</p>
+        `<div style="display:grid;grid-template-rows: max-content;gap:5px;padding:5px">
+        <p>${place.careNm}</p>
+        <p>${place.careTel}</p>
         </div>`,
       );
-      infowindow.open(map, marker);
+      infowindow.open(displayMap, marker);
 
       // 이벤트 전파 방지
       kakao.maps.event.addListener(
@@ -346,35 +285,16 @@ const KakaoMap = (): JSX.Element => {
     }
   };
 
-  const displayPagination = (pagination: any) => {
-    const paginationEl = document.getElementById("pagination");
-    removeAllChildNods(paginationEl);
-
-    for (let i = 1; i <= pagination.last; i++) {
-      const el = document.createElement("a");
-      el.href = "#";
-      el.innerHTML = `${i}`;
-
-      if (i === pagination.current) {
-        el.className = "on";
-      } else {
-        el.onclick = (function (i) {
-          return function () {
-            pagination.gotoPage(i);
-          };
-        })(i);
-      }
-
-      paginationEl?.appendChild(el);
-    }
-  };
-
-  const removeAllChildNods = (el: HTMLElement | null) => {
+  const removeAllChildNodes = (el: HTMLElement | null) => {
     if (el === null) return;
 
     while (el.hasChildNodes()) {
       el.removeChild(el.lastChild as ChildNode);
     }
+  };
+
+  const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setValue(e.target.value);
   };
 
   return (
@@ -383,18 +303,19 @@ const KakaoMap = (): JSX.Element => {
       <SearchWrap id="menu_wrap" className="bg_white">
         <div className="option">
           <div>
-            <Form onSubmit={searchPlaces}>
-              <Input
-                type="text"
-                value={searchValue}
-                id="keyword"
-                onChange={(e) => setSearchValue(e.target.value)}
-                placeholder="지역 or 보호소명"
-              />
-              <Button type="submit">
+            <SelectForm onSubmit={searchPlaces}>
+              <Select onChange={onChange} value={value}>
+                <option value="">지역을 선택해주세요.</option>
+                {options.map((option, idx) => (
+                  <option key={`${idx}`} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </Select>
+              <SelectButton type="submit">
                 <IoSearch />
-              </Button>
-            </Form>
+              </SelectButton>
+            </SelectForm>
           </div>
         </div>
         <List id="placesList"></List>
