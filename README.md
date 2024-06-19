@@ -38,6 +38,8 @@ https://www.notion.so/ogi-front-end/round-project-acec7378b4df47099a240c8a2a3e03
 - 동물보호센터 api로 필터링 된 지역구 중에서 관심 지역 검색
 - 지도 페이지로 지역 키워드 전달
 
+<img width="60%" src="https://github.com/okyewon/round-project/assets/141378574/2d0585a2-81ce-49b9-beec-b71614147493">
+
 ### Map
 
 - Home 에서 전달 받은 데이터가 있을 경우, 해당 지역과 일치하는 동물보호소 정보 필터링
@@ -45,6 +47,8 @@ https://www.notion.so/ogi-front-end/round-project-acec7378b4df47099a240c8a2a3e03
 - 지도 검색
   - 리스트 및 마커 출력 && 클릭 시 infowindow 노출
   - 해당 지역 내의 보호소가 다 보이도록 위치 이동 && 범위 설정
+
+<img width="60%" src="https://github.com/okyewon/round-project/assets/141378574/957fa8cf-51cb-4792-9f15-6a59ba0c668c">
 
 ### Board
 
@@ -56,6 +60,8 @@ https://www.notion.so/ogi-front-end/round-project-acec7378b4df47099a240c8a2a3e03
 - 작성자와 현재 user가 일치하지 않을 때
   - 북마크 기능
 - 숫자 페이지네이션 기능
+
+<img width="60%" src="https://github.com/okyewon/round-project/assets/141378574/cfa09892-8b8d-44aa-910d-8561e51bb110">
 
 ### PostWrite
 
@@ -69,6 +75,8 @@ https://www.notion.so/ogi-front-end/round-project-acec7378b4df47099a240c8a2a3e03
 - 사진 및 글 노출 && 줄바꿈 기능
 - 댓글 기능
 
+<img width="60%" src="https://github.com/okyewon/round-project/assets/141378574/375a146c-d82a-4b8c-9186-9e24dbc393d2">
+
 ### Mypage
 
 - 좌측: 프로필 정보 && 마이페이지 네비게이션
@@ -76,3 +84,5 @@ https://www.notion.so/ogi-front-end/round-project-acec7378b4df47099a240c8a2a3e03
   - 북마크 컬렉션
   - 내가 쓴 게시물 컬렉션
   - 계정 정보 수정(이름 또는 비밀번호 재설정)
+
+<img width="60%" src="https://github.com/okyewon/round-project/assets/141378574/46b4cb65-428f-4035-98c5-1bd7a567effa">
