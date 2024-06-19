@@ -4,15 +4,19 @@ import { IoSearch } from "react-icons/io5";
 import { useNavigate } from "react-router";
 import { FormEvent, useEffect, useState, useCallback } from "react";
 import { shelterAtom } from "../store/shelterStore";
-import { ShelterType, useFetchShelters } from "../../api";
+import { ShelterType, fetchShelters } from "../../api";
 import { useSetRecoilState } from "recoil";
 import Loading from "../common/Loading";
+import { useQuery } from "@tanstack/react-query";
 
 const Home = () => {
   const name = auth.currentUser?.displayName;
   const navigate = useNavigate();
   const setShelters = useSetRecoilState<ShelterType[]>(shelterAtom);
-  const { data, status } = useFetchShelters();
+  const { data, status } = useQuery({
+    queryKey: ["fetchShelters"],
+    queryFn: fetchShelters,
+  });
   const [value, setValue] = useState("");
   const [options, setOptions] = useState<string[]>([]);
 

@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 const shelterURL =
@@ -28,18 +27,11 @@ export interface ShelterType {
   careTel: string;
 }
 
-const fetchShelters = async () => {
+export const fetchShelters = async () => {
   try {
     const response = await axios.get(shelterURL, { params });
     return response.data;
   } catch (error) {
     throw new Error("Error fetching shelters");
   }
-};
-
-export const useFetchShelters = () => {
-  return useQuery({
-    queryKey: ["fetchShelters"],
-    queryFn: fetchShelters,
-  });
 };
