@@ -22,7 +22,7 @@ https://round-project-ad129.web.app/
 
 https://www.notion.so/ogi-front-end/round-project-acec7378b4df47099a240c8a2a3e0327
 
-## ⚓ 페이지 별 주요 기능
+## 😎 페이지 별 주요 기능
 
 ### Login / createAccount
 
