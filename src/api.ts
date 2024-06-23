@@ -1,7 +1,5 @@
 import axios from "axios";
 
-const shelterURL =
-  "http://apis.data.go.kr/1543061/animalShelterSrvc/shelterInfo";
 const SHELTER_KEY =
   "+9vWqLs8ANkKBJxHRbv96jZRHdI40Tovc3gudRgK7TNH1+fTDk6Fx19KiysgqhrSlAz+ZWXZYJbnmWozsBO8Eg==";
 
@@ -29,7 +27,10 @@ export interface ShelterType {
 
 export const fetchShelters = async () => {
   try {
-    const response = await axios.get(shelterURL, { params });
+    const response = await axios.get(
+      "https://apis.data.go.kr/1543061/animalShelterSrvc/shelterInfo",
+      { params },
+    );
     return response.data;
   } catch (error) {
     throw new Error("Error fetching shelters");
