@@ -13,8 +13,8 @@ https://round-project-ad129.web.app/
 
 ## 🧐 프로젝트 구성
 
-- React + TypeScript + Vite 기반
-- Tailwind CSS, Styled Component
+- React + TypeScript + Vite 
+- Tailwind CSS, Styled Components
 - React Query, Recoil
 - 외부 api
   - 카카오맵 api : https://apis.map.kakao.com/web/guide/
